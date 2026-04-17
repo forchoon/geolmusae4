@@ -423,8 +423,7 @@ export default function Home(){
     };
     calcCompare();
   },[compareStock]);
-  const
-  yt=getYahooTicker(s.ticker);setSelectedStock({ticker:s.ticker,yahooTicker:yt,name:s.name});setCurrency(getCurrency(yt));setResult(null);setInvestYear(Math.floor((getIpoYear(yt)+lastYear)/2));};
+  const yt=getYahooTicker(s.ticker);setSelectedStock({ticker:s.ticker,yahooTicker:yt,name:s.name});setCurrency(getCurrency(yt));setResult(null);setInvestYear(Math.floor((getIpoYear(yt)+lastYear)/2));};
   const handleSelectSearch=stock=>{setSearchQuery("");setSearchResults([]);setShowDropdown(false);setResult(null);const yt=stock.ticker;setSelectedStock({ticker:yt,yahooTicker:yt,name:stock.nameKo||stock.name});setCurrency(getCurrency(yt));const ipoYear=stock.ipoYear||getIpoYear(yt)||2000;IPO_YEAR[yt]=ipoYear;setInvestYear(Math.floor((ipoYear+lastYear)/2));};
 
   const handleCalculate=async()=>{
