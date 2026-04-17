@@ -293,7 +293,7 @@ function ShareCard({result,stockName,investYear,investAmount,onClose,isDark}){
         <div style={{fontSize:"40px",marginBottom:"8px"}}>{char}</div>
         <div style={{fontSize:"12px",color:mc,opacity:0.7,marginBottom:"3px",fontWeight:"400"}}>{stockName}</div>
         <div style={{fontSize:"11px",color:mc,opacity:0.5,marginBottom:"14px",fontWeight:"400"}}>{investYear}년에 {isProfit?"샀더라면":"팔았더라면"}…</div>
-        <div style={{fontSize:"56px",fontWeight:"300",color:mc,letterSpacing:"-2px",lineHeight:1,marginBottom:"6px"}}>{isProfit?"+":""}{returnPct}%</div>
+        <div style={{fontSize:"36px",fontWeight:"300",color:mc,letterSpacing:"-2px",lineHeight:1,marginBottom:"6px"}}>{isProfit?"+":""}{returnPct}%</div>
         <div style={{fontSize:"18px",color:"#e8f0ea",fontWeight:"400",marginBottom:"4px"}}>{formatKRW(Math.round(currentValueKRW))}</div>
         <div style={{fontSize:"10px",color:mc,opacity:0.5,marginBottom:"16px",fontWeight:"400"}}>{formatKRW(parseInt(investAmount)*10000)} 투자 → {CURRENT_YEAR}년</div>
         <div style={{fontSize:"11px",color:mc,opacity:0.7,lineHeight:"1.6",fontStyle:"italic",fontWeight:"400"}}>"{msg}"</div>
