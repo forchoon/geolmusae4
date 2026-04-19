@@ -595,6 +595,7 @@ export default function Home(){
             <button onClick={handleCalculate} disabled={loading||priceLoading||!buyPrice} style={{width:"100%",padding:"18px",background:(loading||priceLoading||!buyPrice)?T.presetActive:`linear-gradient(135deg,${T.accentDim},#15803d)`,border:"none",borderRadius:"14px",cursor:(loading||priceLoading||!buyPrice)?"not-allowed":"pointer",color:"#fff",fontSize:"17px",fontWeight:"300",letterSpacing:"-0.3px",transition:"all 0.2s"}}>
               {loading?"🦜 껄무새 계산 중…":priceLoading?"📡 시세 조회 중…":!buyPrice?"연도를 선택해주세요":"📈 수익률 계산하기"}
             </button>
+              <CoupangBanner isDark={isDark} T={T}/>
           </div>
 
           {/* 결과 */}
@@ -694,7 +695,7 @@ export default function Home(){
             </div>
           )}
           {/* 쿠팡 배너 — 맨 아래 */}
-          {result&&<CoupangBanner isDark={isDark} T={T}/>}
+
 
         </div>
 
