@@ -139,11 +139,7 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
 
   return(
     <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",padding:"16px 14px",overflow:"hidden",marginBottom:"16px"}}>
-      <div style={{marginBottom:"6px"}}>
-        <div style={{fontSize:"20px",fontWeight:"300",color:T.text}}>
-          {/* 드래그 중이면 해당 연도+가격, 아니면 현재가 */}
-          {dragIdx!==null ? `${idxToYear(dragIdx)}년 ${displayPrice(data[dragIdx])}` : displayPrice(hv||cur)}
-        </div>
+     
         <div style={{fontSize:"13px",color:lc,fontWeight:"400",marginTop:"2px"}}>
           상장 이후 {parseFloat(ret)>=0?"+":""}{ret}%
         </div>
@@ -533,7 +529,7 @@ export default function Home(){
                 {[{val:false,label:"$ 달러 (USD)"},{val:true,label:"₩ 원화 (KRW)"}].map(opt=><button key={String(opt.val)} onClick={()=>setShowKRW(opt.val)} style={{padding:"5px 12px",background:showKRW===opt.val?T.presetActive:"transparent",border:`1px solid ${showKRW===opt.val?T.borderActive:T.border}`,borderRadius:"20px",cursor:"pointer",color:showKRW===opt.val?T.accent:T.textMuted,fontSize:"12px",fontWeight:"400"}}>{opt.label}</button>)}
               </div>}
             </div>
-            <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
+     
           </div>
 
           {/* STEP 2 — 매수 시점 선택 (차트 바로 아래) */}
@@ -543,6 +539,7 @@ export default function Home(){
               <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>매수 시점 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
+            <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"14px"}}>
               <div>
                 <span style={{fontSize:"32px",fontWeight:"300",color:T.text,letterSpacing:"-1px"}}>{investYear}년</span>
