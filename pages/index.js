@@ -503,7 +503,7 @@ export default function Home(){
             {/* 검색 */}
             <div style={{marginBottom:"14px",position:"relative"}}>
               <div style={{position:"relative"}}>
-                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"삼성전자, 카카오…":activeTab==="index"?"SPY, QQQ…":"코카콜라, KO…"} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"14px",fontWeight:"400",outline:"none"}}/>
+                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"삼성전자, 카카오…":activeTab==="index"?"SPY, QQQ…":"코카콜라, KO…"} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"16px",fontWeight:"400",outline:"none"}}/>
                 <span style={{position:"absolute",right:"14px",top:"50%",transform:"translateY(-50%)",fontSize:"16px"}}>{searching?"⏳":"🔎"}</span>
               </div>
               {showDropdown&&<>
