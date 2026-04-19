@@ -471,7 +471,7 @@ export default function Home(){
             <span>{isDark?"☀️":"🌙"}</span><span>{isDark?"라이트":"다크"}</span>
           </button>
           <div style={{fontSize:"36px",marginBottom:"4px"}}>🦜</div>
-          <h1 style={{fontSize:"32px",fontWeight:"300",margin:0,letterSpacing:"-1px",background:isDark?"linear-gradient(135deg,#ffffff 0%,#86efac 60%,#4ade80 100%)":"linear-gradient(135deg,#0d1a10 0%,#16a34a 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>껄무새</h1>
+          <h1 style={{fontSize:"32px",fontWeight:"600",margin:0,letterSpacing:"-1px",background:isDark?"linear-gradient(135deg,#ffffff 0%,#86efac 60%,#4ade80 100%)":"linear-gradient(135deg,#0d1a10 0%,#16a34a 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>껄무새</h1>
           <p style={{fontSize:"13px",color:T.accent,margin:"6px 0 2px",fontWeight:"400"}}>그때 살걸!!! 그때 팔걸!!! 껄껄껄 🦜</p>
         </div>
 
