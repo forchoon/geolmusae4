@@ -296,7 +296,7 @@ function ShareCard({result,stockName,investYear,investAmount,onClose,isDark}){
         <div style={{fontSize:"36px",fontWeight:"300",color:mc,letterSpacing:"-2px",lineHeight:1,marginBottom:"6px"}}>{isProfit?"+":""}{returnPct}%</div>
         <div style={{fontSize:"18px",color:"#e8f0ea",fontWeight:"400",marginBottom:"4px"}}>{formatKRW(Math.round(currentValueKRW))}</div>
         <div style={{fontSize:"10px",color:mc,opacity:0.5,marginBottom:"16px",fontWeight:"400"}}>{formatKRW(parseInt(investAmount)*10000)} 투자 → {CURRENT_YEAR}년</div>
-        <div style={{fontSize:"11px",color:mc,opacity:0.7,lineHeight:"1.6",fontStyle:"italic",fontWeight:"400"}}>"{msg}"</div>
+        <div style={{fontSize:"11px",color:mc,opacity:0.7,lineHeight:"1.6",fontStyle:"normal",fontWeight:"400"}}>"{msg}"</div>
         <div style={{marginTop:"14px",fontSize:"9px",color:mc,opacity:0.3}}>연평균 수익률 {isProfit?"+":""}{cagr}% · stockparrot.kr</div>
       </div>
       <div style={{display:"flex",gap:"10px",marginTop:"14px",width:"320px"}}>
@@ -594,8 +594,8 @@ export default function Home(){
             </div>
             <button onClick={handleCalculate} disabled={loading||priceLoading||!buyPrice} style={{width:"100%",padding:"18px",background:(loading||priceLoading||!buyPrice)?T.presetActive:`linear-gradient(135deg,${T.accentDim},#15803d)`,border:"none",borderRadius:"14px",cursor:(loading||priceLoading||!buyPrice)?"not-allowed":"pointer",color:"#fff",fontSize:"17px",fontWeight:"300",letterSpacing:"-0.3px",transition:"all 0.2s"}}>
               {loading?"🦜 껄무새 계산 중…":priceLoading?"📡 시세 조회 중…":!buyPrice?"연도를 선택해주세요":"📈 수익률 계산하기"}
-            </button> <br>
-              <CoupangBanner isDark={isDark} T={T}/>
+            </button> 
+          <div style={{marginTop:"20px"}}><CoupangBanner isDark={isDark} T={T}/></div>
           </div>
 
           {/* 결과 */}
@@ -630,7 +630,7 @@ export default function Home(){
                       <span style={{fontSize:"16px",color:result.isProfit?T.accent:"#f87171"}}>{result.isProfit?"▲":"▼"}</span>
                       <span style={{fontSize:"15px",fontWeight:"300",color:result.isProfit?T.accent:"#f87171"}}>{formatKRW(Math.abs(result.profitKRW))} {result.isProfit?"수익":"손실"}</span>
                     </div>
-                    <div style={{marginTop:"16px",fontSize:"16px",fontWeight:"300",color:result.isProfit?T.accent:"#f87171"}}>{parrotMsg}</div>
+                  
                   </div>
                   <div style={{display:"flex",gap:"8px",marginBottom:"16px"}}>
                     {[{label:"매수가",value:displayPrice(result.buyPrice)},{label:"현재가",value:displayPrice(result.currentPrice)},{label:"연평균 수익률",value:`${result.isProfit?"+":""}${result.cagr}%`,h:true}].map(item=>(
@@ -643,7 +643,7 @@ export default function Home(){
                 </div>
                 <div style={{padding:"0 20px 22px"}}>
                   <div style={{padding:"16px",background:result.isProfit?`${T.accent}10`:"rgba(239,68,68,0.08)",border:`1px solid ${result.isProfit?T.accent+"25":"#ef444425"}`,borderRadius:"12px",textAlign:"center",marginBottom:"14px"}}>
-                    <div style={{fontSize:"14px",color:result.isProfit?T.accent:"#f87171",fontStyle:"italic",lineHeight:"1.7",fontWeight:"400"}}>"{witMsgs[animKey%3]}"</div>
+                    <div style={{fontSize:"14px",color:result.isProfit?T.accent:"#f87171",fontStyle:"normal",lineHeight:"1.7",fontWeight:"400"}}>"{witMsgs[animKey%3]}"</div>
                   </div>
 
                   {/* 📥 이미지로 저장하기 */}
