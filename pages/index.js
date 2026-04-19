@@ -459,9 +459,9 @@ export default function Home(){
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
-        <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet"/>
       </Head>
-      <div style={{minHeight:"100vh",background:T.bg,color:T.text,overflowX:"hidden",transition:"background 0.3s,color 0.3s",fontFamily:"'Nanum Gothic','Apple SD Gothic Neo',sans-serif"}}>
+      <div style={{minHeight:"100vh",background:T.bg,color:T.text,overflowX:"hidden",transition:"background 0.3s,color 0.3s",fontFamily:"'Pretendard','Apple SD Gothic Neo',sans-serif"}}>
 
         {showShareCard&&result&&<ShareCard result={result} stockName={selectedStock.name} investYear={investYear} investAmount={investAmount} onClose={()=>setShowShareCard(false)} isDark={isDark}/>}
 
