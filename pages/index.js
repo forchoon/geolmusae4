@@ -611,7 +611,7 @@ export default function Home(){
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
                     <div>
                       <div style={{fontSize:"15px",color:T.text,fontWeight:"300"}}>{selectedStock.name}</div>
-                      <div style={{fontSize:"13px",color:T.textSub,marginTop:"3px",fontWeight:"400"}}>{result.buyDateStr} → 오늘 · {result.years}년 보유</div>
+                      <div style={{fontSize:"13px",color:T.textSub,marginTop:"3px",fontWeight:"400"}}>{result.buyDateStr} <br/> → 오늘 · {result.years}년 보유</div>
                     </div>
                     <div style={{background:result.isProfit?`${T.accent}20`:"rgba(239,68,68,0.15)",border:`1px solid ${result.isProfit?T.accent+"50":"#ef444450"}`,borderRadius:"12px",padding:"10px 16px",textAlign:"center"}}>
                       <div style={{fontSize:"20px",fontWeight:"300",color:result.isProfit?T.accent:"#f87171",lineHeight:1}}>{result.isProfit?"+":""}{result.returnPct}%</div>
