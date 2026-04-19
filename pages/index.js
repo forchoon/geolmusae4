@@ -520,7 +520,7 @@ export default function Home(){
                 <div style={{background:T.presetActive,borderRadius:"8px",padding:"8px 11px",flexShrink:0}}><div style={{color:T.accent,fontWeight:"300",fontSize:"11px"}}>{isUSD?"USD":"KRW"}</div></div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{color:T.text,fontWeight:"300",fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
-                  <div style={{color:T.textSub,fontSize:"13px",marginTop:"2px",fontWeight:"400"}}>{firstYear}년 상장 · 현재 {priceLoading?"조회 중…":currentPrice?displayPrice(currentPrice):"-"}</div>
+                  <div style={{color:T.textSub,fontSize:"13px",marginTop:"2px",fontWeight:"600"}}>{firstYear}년 상장 · 현재 {priceLoading?"조회 중…":currentPrice?displayPrice(currentPrice):"-"}</div>
                 </div>
                 {liveReturnPct&&<span style={{color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171",fontSize:"15px",fontWeight:"300",flexShrink:0}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</span>}
               </div>
