@@ -166,15 +166,15 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
         {/* 최저가 */}
         <circle cx={tx(mi).toFixed(1)} cy={ty(mn).toFixed(1)} r="4" fill={T.bg} stroke="#f87171" strokeWidth="2"/>
         <rect x={Math.min(Math.max(tx(mi)-30,0),W-62)} y={(ty(mn)+8).toFixed(1)} width="62" height="16" rx="4" fill="#f8717130"/>
-        <text x={Math.min(Math.max(tx(mi),32),W-32)} y={(ty(mn)+19).toFixed(1)} textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="600">최저 {displayPrice(mn)}</text>
+        <text x={Math.min(Math.max(tx(mi),32),W-32)} y={(ty(mn)+19).toFixed(1)} textAnchor="middle" fill="#f87171" fontSize="13" fontWeight="700">최저 {displayPrice(mn)}</text>
         {/* 최고가 */}
         <circle cx={tx(xi).toFixed(1)} cy={ty(mx).toFixed(1)} r="4" fill={T.bg} stroke="#fbbf24" strokeWidth="2"/>
         <rect x={Math.min(Math.max(tx(xi)-30,0),W-62)} y={(ty(mx)-20).toFixed(1)} width="62" height="16" rx="4" fill="#fbbf2430"/>
-        <text x={Math.min(Math.max(tx(xi),32),W-32)} y={(ty(mx)-9).toFixed(1)} textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="600">최고 {displayPrice(mx)}</text>
+        <text x={Math.min(Math.max(tx(xi),32),W-32)} y={(ty(mx)-9).toFixed(1)} textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="700">최고 {displayPrice(mx)}</text>
         {/* 매수 마커 */}
         <line x1={bx.toFixed(1)} y1={P} x2={bx.toFixed(1)} y2={H-P} stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.7"/>
         <circle cx={bx.toFixed(1)} cy={by.toFixed(1)} r={dragIdx!==null?7:5} fill="#60a5fa" stroke={T.bg} strokeWidth="2" style={{cursor:"grab"}}/>
-        <text x={Math.min(Math.max(bx,50),W-50)} y={(by-10).toFixed(1)} textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="600">
+        <text x={Math.min(Math.max(bx,50),W-50)} y={(by-10).toFixed(1)} textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="700">
           {idxToYear(bi)}년 {displayPrice(data[bi])}
         </text>
         {hoverIdx!==null&&<><line x1={hx.toFixed(1)} y1={P} x2={hx.toFixed(1)} y2={H-P} stroke={lc} strokeWidth="1" strokeDasharray="3,3" opacity="0.5"/><circle cx={hx.toFixed(1)} cy={hy.toFixed(1)} r="4" fill={lc} stroke={T.bg} strokeWidth="2"/></>}
@@ -464,12 +464,12 @@ export default function Home(){
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <div style={{display:"flex",gap:"4px",marginBottom:"16px",background:T.tabBg,borderRadius:"14px",padding:"4px"}}>
-              {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"11px 4px",background:activeTab===tab.id?T.tabActive:"transparent",border:`1px solid ${activeTab===tab.id?T.borderActive+"60":"transparent"}`,borderRadius:"10px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.tabInactive,fontSize:"12px",fontWeight:"400",transition:"all 0.2s"}}>{tab.label}</button>)}
+              {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"11px 4px",background:activeTab===tab.id?T.tabActive:"transparent",border:`1px solid ${activeTab===tab.id?T.borderActive+"60":"transparent"}`,borderRadius:"10px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.tabInactive,fontSize:"13px",fontWeight:"400",transition:"all 0.2s"}}>{tab.label}</button>)}
             </div>
             {/* 검색 */}
             <div style={{marginBottom:"14px",position:"relative"}}>
               <div style={{position:"relative"}}>
-                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"영문으로 검색하세요! (예: samsung)":activeTab==="coin"?"코인 검색 (예: bitcoin, BTC)":activeTab==="index"?"SPY, QQQ…":"영문 또는 티커로 검색하세요!…"} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"16px",fontWeight:"400",outline:"none"}}/>
+                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"종목명 검색 (예: samsung)":activeTab==="coin"?"코인 검색 (예: bitcoin)":activeTab==="index"?"SPY, QQQ…":"티커 또는 종목명 검색"} style={{width:"100%",background:T.inputBg,border:`1.5px solid ${T.borderActive}60`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"14px",fontWeight:"400",outline:"none",boxShadow:`0 0 0 3px ${T.accent}10`}}/>
                 <span style={{position:"absolute",right:"14px",top:"50%",transform:"translateY(-50%)",fontSize:"16px"}}>{searching?"⏳":"🔎"}</span>
               </div>
               {showDropdown&&<>
@@ -488,10 +488,10 @@ export default function Home(){
               <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
                 <div style={{background:T.presetActive,borderRadius:"8px",padding:"8px 11px",flexShrink:0}}><div style={{color:T.accent,fontWeight:"300",fontSize:"11px"}}>{isUSD?"USD":"KRW"}</div></div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{color:T.text,fontWeight:"300",fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
+                  <div style={{color:T.text,fontWeight:"500",fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
                   <div style={{color:T.textSub,fontSize:"13px",marginTop:"2px",fontWeight:"600"}}>{firstYear}년 상장 · 현재 {priceLoading?"조회 중…":currentPrice?displayPrice(currentPrice):"-"}</div>
                 </div>
-                {liveReturnPct&&<span style={{color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171",fontSize:"15px",fontWeight:"300",flexShrink:0}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</span>}
+                {liveReturnPct&&<span style={{color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171",fontSize:"15px",fontWeight:"600",flexShrink:0}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</span>}
               </div>
               {isUSD&&<div style={{marginTop:"10px",paddingTop:"10px",borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:"6px"}}>
                 <span style={{fontSize:"12px",color:T.textSub,marginRight:"2px",fontWeight:"400"}}>표시 통화</span>
@@ -517,7 +517,7 @@ export default function Home(){
               <div style={{textAlign:"right"}}>
                 {priceLoading&&<div style={{fontSize:"13px",color:T.accent,fontWeight:"400"}}>🦜 조회 중…</div>}
                 {priceError&&!priceLoading&&<div style={{fontSize:"12px",color:"#f87171",fontWeight:"400"}}>{priceError}</div>}
-                {liveReturnPct&&!priceLoading&&<div style={{fontSize:"15px",fontWeight:"300",color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171"}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</div>}
+                {liveReturnPct&&!priceLoading&&<div style={{fontSize:"18px",fontWeight:"600",color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171",letterSpacing:"-0.5px"}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</div>}
               </div>
             </div>
             <div style={{fontSize:"12px",color:T.textMuted,textAlign:"center",marginBottom:"8px",fontWeight:"400"}}>👆 차트를 좌우로 드래그해서 매수 시점을 선택하세요</div>
