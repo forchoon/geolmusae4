@@ -197,7 +197,7 @@ function CoupangBanner({isDark,T}){
     <div style={{marginBottom:"20px",borderRadius:"14px",overflow:"hidden",border:`1px solid ${T.border}`,position:"relative"}}>
       <div style={{position:"absolute",top:"9px",right:"10px",zIndex:2,fontSize:"10px",color:T.textMuted,background:T.bgCard,padding:"2px 7px",borderRadius:"4px",border:`1px solid ${T.border}`,fontWeight:"400"}}>광고 · 쿠팡파트너스</div>
       <div style={{display:"flex",justifyContent:"center",padding:"8px 0",background:T.bgCard}}>
-        <iframe src="https://ads-partners.coupang.com/widgets.html?id=982204&template=carousel&trackingCode=AF6806576&subId=&width=360&height=250&tsource=" width="360" height="250" frameBorder="0" scrolling="no" referrerPolicy="unsafe-url"></iframe>
+        <iframe src="https://ads-partners.coupang.com/widgets.html?id=982204&template=carousel&trackingCode=AF6806576&subId=&width=320&height=100&tsource=" width="360" height="250" frameBorder="0" scrolling="no" referrerPolicy="unsafe-url"></iframe>
       </div>
       <div style={{padding:"5px 12px",background:T.bgDeep,fontSize:"10px",color:T.textMuted,textAlign:"center",fontWeight:"400"}}>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div>
     </div>
