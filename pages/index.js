@@ -142,7 +142,6 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
      
         <div style={{fontSize:"13px",color:lc,fontWeight:"400",marginTop:"2px"}}>
           상장 이후 {parseFloat(ret)>=0?"+":""}{ret}%
-        </div>
       </div>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible",cursor:"crosshair"}}
         onMouseMove={e=>{
