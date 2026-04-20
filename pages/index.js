@@ -562,7 +562,7 @@ export default function Home(){
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{firstYear}년</span>
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{Math.round((firstYear+lastYear)/2)}년</span>
               <span style={{fontSize:"12px",color:T.accent,fontWeight:"300"}}>오늘</span>
-                              <br><StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
+                              <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
 
             </div>
           </div>
