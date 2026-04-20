@@ -204,21 +204,7 @@ function CoupangBanner({isDark,T}){
   );
 }
 
-// ── 구글 애드센스 배너 ───────────────────────────────────────
-function AdSenseBanner({isDark,T,isProfit}){
-  return(
-    <div style={{marginTop:"14px",borderRadius:"12px",overflow:"hidden",border:`1px solid ${T.border}`,position:"relative"}}>
-      <div style={{position:"absolute",top:"9px",left:"10px",zIndex:1,fontSize:"10px",color:T.textMuted,background:T.bgCard,padding:"2px 7px",borderRadius:"4px",border:`1px solid ${T.border}`,fontWeight:"400"}}>광고 · Google AdSense</div>
-      <div onClick={()=>window.open("https://securities.example.com/open-account","_blank","noopener,noreferrer")} style={{background:T.bgCard,padding:"22px 16px 16px",textAlign:"center",cursor:"pointer"}}>
-        <div style={{fontSize:"28px",marginBottom:"8px"}}>🏦</div>
-        <div style={{fontSize:"15px",fontWeight:"300",color:isDark?"#93c5fd":"#1d4ed8",marginBottom:"4px"}}>{isProfit?"수익 실현, 지금 계좌 개설":"다음 기회는 놓치지 마세요"}</div>
-        <div style={{fontSize:"12px",color:T.textSub,marginBottom:"14px",lineHeight:"1.6",fontWeight:"400"}}>{isProfit?"껄무새가 찾아준 종목, 지금 바로 투자해보세요":"다음 엔비디아를 먼저 잡는 계좌"}</div>
-        <div style={{display:"inline-flex",alignItems:"center",gap:"6px",background:"linear-gradient(135deg,#2563eb,#1d4ed8)",color:"#fff",fontSize:"14px",fontWeight:"300",padding:"10px 26px",borderRadius:"22px"}}>무료 계좌 개설 →</div>
-        <div style={{fontSize:"10px",color:T.textMuted,marginTop:"9px",fontWeight:"400"}}>신규 계좌 개설 시 수수료 혜택 · 광고성 정보</div>
-      </div>
-    </div>
-  );
-}
+
 
 // ── CountUp ──────────────────────────────────────────────────
 function CountUp({target,duration=1400}){
@@ -659,9 +645,9 @@ export default function Home(){
                   </div>
 
                   <div style={{fontSize:"12px",color:T.textSub,textAlign:"center",lineHeight:"1.7",fontWeight:"400",marginBottom:"12px"}}>⚠️ 과거 수익률은 미래를 보장하지 않습니다.</div>
+                      <div style={{marginTop:"14px",borderRadius:"12px",overflow:"hidden",border:`1px solid ${T.border}`}}><div style={{display:"flex",justifyContent:"center",background:T.bgCard,padding:"8px 0"}}><iframe src="https://ads-partners.coupang.com/widgets.html?id=982204&template=carousel&trackingCode=AF6806576&subId=&width=360&height=250&tsource=" width="360" height="250" frameBorder="0" scrolling="no" referrerPolicy="unsafe-url"></iframe></div><div style={{padding:"5px 12px",fontSize:"10px",color:T.textMuted,textAlign:"center",fontWeight:"400"}}>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div></div>
 
-                  {/* 구글 애드센스 — 비교 칩 아래 */}
-                  <AdSenseBanner isDark={isDark} T={T} isProfit={result.isProfit}/>
+                
                 </div>
               </div>
             </div>
