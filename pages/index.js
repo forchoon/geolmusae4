@@ -538,7 +538,6 @@ export default function Home(){
               <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>매수 시점 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
-            <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"14px"}}>
               <div>
                 <span style={{fontSize:"32px",fontWeight:"300",color:T.text,letterSpacing:"-1px"}}>{investYear}년</span>
@@ -563,6 +562,8 @@ export default function Home(){
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{firstYear}년</span>
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{Math.round((firstYear+lastYear)/2)}년</span>
               <span style={{fontSize:"12px",color:T.accent,fontWeight:"300"}}>오늘</span>
+                              <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
+
             </div>
           </div>
 
