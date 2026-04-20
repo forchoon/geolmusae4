@@ -551,13 +551,7 @@ export default function Home(){
                 {liveReturnPct&&!priceLoading&&<div style={{fontSize:"15px",fontWeight:"300",color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171"}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</div>}
               </div>
             </div>
-            <div style={{position:"relative",padding:"8px 0"}}>
-              <div style={{height:"4px",background:T.border,borderRadius:"2px",position:"relative"}}>
-                <div style={{position:"absolute",left:0,width:`${sliderPct}%`,height:"100%",background:`linear-gradient(90deg,${isDark?"#14532d":"#bbf7d0"},${T.accent})`,borderRadius:"2px",transition:"width 0.04s"}}/>
-              </div>
-              <input type="range" min={firstYear} max={lastYear} value={investYear} onChange={e=>{setInvestYear(parseInt(e.target.value));setResult(null);}} style={{position:"absolute",top:0,left:0,width:"100%",height:"20px",opacity:0,cursor:"pointer",margin:0,padding:0}}/>
-              <div style={{position:"absolute",top:"50%",transform:"translate(-50%,-50%)",left:`${sliderPct}%`,width:"22px",height:"22px",background:T.accent,borderRadius:"50%",border:`3px solid ${T.bg}`,pointerEvents:"none"}}/>
-            </div>
+    <div style={{fontSize:"12px",color:T.textMuted,textAlign:"center",marginBottom:"8px",fontWeight:"400"}}>👆 차트를 좌우로 드래그해서 매수 시점을 선택하세요</div>
 <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
               <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px"}}>
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{firstYear}년</span>
