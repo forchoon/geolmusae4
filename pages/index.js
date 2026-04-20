@@ -144,7 +144,7 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
   };
 
   return(
-    <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",padding:"16px 14px",overflow:"hidden",marginBottom:"16px"}}>
+    <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",padding:"16px 14px 24px",overflow:"hidden",marginBottom:"28px"}}>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible",cursor:"crosshair"}}
         onMouseMove={e=>{
           const idx=getIdxFromEvent(e.clientX,e.currentTarget);
@@ -438,18 +438,18 @@ export default function Home(){
           </button>
           <div style={{fontSize:"36px",marginBottom:"4px"}}>🦜</div>
           <h1 style={{fontSize:"32px",fontWeight:"600",margin:0,letterSpacing:"-1px",background:isDark?"linear-gradient(135deg,#ffffff 0%,#86efac 60%,#4ade80 100%)":"linear-gradient(135deg,#0d1a10 0%,#16a34a 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>껄무새</h1>
-          <p style={{fontSize:"13px",color:T.accent,margin:"6px 0 2px",fontWeight:"400"}}>그때 살걸!!! 그때 팔걸!!! 껄껄껄 🦜</p>
+          <p style={{fontSize:"13px",color:T.accent,margin:"6px 0 2px",fontWeight:"500"}}>그때 살걸!!! 그때 팔걸!!! 껄껄껄 🦜</p>
         </div>
 
         {/* 환율 */}
         <div style={{maxWidth:"600px",margin:"0 auto 8px",padding:"0 16px"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"10px",padding:"10px 18px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"12px"}}>
             <span style={{fontSize:"15px"}}>💱</span>
-            <span style={{fontSize:"13px",color:T.textSub,fontWeight:"400"}}>USD / KRW</span>
+            <span style={{fontSize:"13px",color:T.textSub,fontWeight:"500"}}>USD / KRW</span>
             <div style={{width:"1px",height:"14px",background:T.border}}/>
             {rateLoading?<span style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>조회 중…</span>:<>
-              <span style={{fontSize:"17px",fontWeight:"300",color:T.text}}>{usdToKrw.toLocaleString()}<span style={{fontSize:"13px",color:T.textSub,marginLeft:"2px",fontWeight:"400"}}>원</span></span>
-              <span style={{fontSize:"11px",fontWeight:"300",padding:"3px 9px",background:`${T.accent}25`,color:T.accent,borderRadius:"6px"}}>실시간</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text}}>{usdToKrw.toLocaleString()}<span style={{fontSize:"13px",color:T.textSub,marginLeft:"2px",fontWeight:"400"}}>원</span></span>
+              <span style={{fontSize:"11px",fontWeight:"500",padding:"3px 9px",background:`${T.accent}25`,color:T.accent,borderRadius:"6px"}}>실시간</span>
             </>}
           </div>
         </div>
@@ -460,7 +460,7 @@ export default function Home(){
           <div style={sec}>
             <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}>
               <div style={{...snStyle,background:"linear-gradient(135deg,#22c55e,#15803d)"}}>1</div>
-              <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>종목 선택</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>종목 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <div style={{display:"flex",gap:"4px",marginBottom:"16px",background:T.tabBg,borderRadius:"14px",padding:"4px"}}>
@@ -504,7 +504,7 @@ export default function Home(){
           <div style={sec}>
             <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}>
               <div style={{...snStyle,background:"linear-gradient(135deg,#22c55e,#15803d)"}}>2</div>
-              <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>매수 시점 선택</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>매수 시점 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
@@ -533,7 +533,7 @@ export default function Home(){
           <div style={sec}>
             <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}>
               <div style={{...snStyle,background:"linear-gradient(135deg,#22c55e,#15803d)"}}>3</div>
-              <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>투자 금액 설정</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>투자 금액 설정</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <div style={{display:"flex",gap:"7px",flexWrap:"wrap",marginBottom:"12px"}}>
@@ -557,7 +557,7 @@ export default function Home(){
           <div style={sec}>
             <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}>
               <div style={{...snStyle,background:"linear-gradient(135deg,#22c55e,#15803d)"}}>4</div>
-              <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>수익률 계산</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>수익률 계산</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <button onClick={handleCalculate} disabled={loading||priceLoading||!buyPrice} style={{width:"100%",padding:"18px",background:(loading||priceLoading||!buyPrice)?T.presetActive:`linear-gradient(135deg,${T.accentDim},#15803d)`,border:"none",borderRadius:"14px",cursor:(loading||priceLoading||!buyPrice)?"not-allowed":"pointer",color:"#fff",fontSize:"17px",fontWeight:"600",letterSpacing:"-0.3px",transition:"all 0.2s"}}>
@@ -571,15 +571,15 @@ export default function Home(){
             <div id="result-section" key={animKey} style={{marginBottom:"48px",animation:"slideUp 0.5s cubic-bezier(0.16,1,0.3,1)"}}>
               <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}>
                 <div style={{...snStyle,background:"linear-gradient(135deg,#f59e0b,#d97706)",fontSize:"16px"}}>🦜</div>
-                <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>결과</span>
+                <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>결과</span>
                 <div style={{flex:1,height:"1px",background:T.border}}/>
               </div>
-              <div style={{background:T.bgResult,border:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderTop:`3px solid ${result.isProfit?T.accent:"#ef4444"}`,borderRadius:"20px",overflow:"hidden",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
+              <div style={{background:T.bgResult,borderLeft:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderRight:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderBottom:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderTop:`3px solid ${result.isProfit?T.accent:"#ef4444"}`,borderRadius:"20px",overflow:"hidden",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
                 <div style={{padding:"22px 20px 0"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
                     <div>
                       <div style={{fontSize:"15px",color:T.text,fontWeight:"300"}}>{selectedStock.name}</div>
-                      <div style={{fontSize:"13px",color:T.textSub,marginTop:"3px",fontWeight:"400"}}>{result.buyDateStr} <br/> → 오늘 · {result.years}년 보유</div>
+                      <div style={{fontSize:"13px",color:T.textSub,marginTop:"3px",fontWeight:"500"}}>{result.buyDateStr} <br/> → 오늘 · {result.years}년 보유</div>
                     </div>
                     <div style={{background:result.isProfit?`${T.accent}20`:"rgba(239,68,68,0.15)",border:`1px solid ${result.isProfit?T.accent+"50":"#ef444450"}`,borderRadius:"12px",padding:"10px 16px",textAlign:"center"}}>
                       <div style={{fontSize:"20px",fontWeight:"300",color:result.isProfit?T.accent:"#f87171",lineHeight:1}}>{result.isProfit?"+":""}{result.returnPct}%</div>
@@ -627,7 +627,7 @@ export default function Home(){
 
                   {/* 🔀 다른 종목과 비교 */}
                   <div style={{marginBottom:"14px"}}>
-                    <div style={{fontSize:"14px",color:T.textSub,fontWeight:"600",marginBottom:"10px",textAlign:"center"}}>다른 종목과 비교해볼까요?</div>
+                    <div style={{fontSize:"14px",color:T.textSub,fontWeight:"700",marginBottom:"10px",textAlign:"center",letterSpacing:"-0.2px"}}>🔀 다른 종목과 비교해볼까요?</div>
                     <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"center",marginBottom:"12px"}}>
                       {[...US_PRESETS,...KR_PRESETS,...INDEX_PRESETS.slice(0,2),...COIN_PRESETS.slice(0,2)].filter(s=>s.ticker!==selectedStock.ticker).slice(0,12).map(s=>(
                         <button key={s.ticker} onClick={()=>setCompareStock(cs=>cs?.ticker===s.ticker?null:s)} style={{padding:"7px 13px",background:compareStock?.ticker===s.ticker?T.presetActive:T.presetInactive,border:`1px solid ${compareStock?.ticker===s.ticker?T.borderActive:T.border}`,borderRadius:"20px",cursor:"pointer",color:compareStock?.ticker===s.ticker?T.accent:T.presetInactiveText,fontSize:"13px",fontWeight:"400",transition:"all 0.15s"}}>
