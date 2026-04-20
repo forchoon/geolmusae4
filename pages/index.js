@@ -124,7 +124,7 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
   const [hoverIdx,setHoverIdx]=useState(null);
   const [dragIdx,setDragIdx]=useState(null);
   const data=getChartData(ticker);
-  const W=480,H=130,P=10;
+  const W=480,H=150,P=10;
   const mn=Math.min(...data),mx=Math.max(...data);
   const mi=data.indexOf(mn),xi=data.indexOf(mx);
   const up=data[data.length-1]>=data[0],lc=up?"#4ade80":"#f87171";
@@ -142,19 +142,44 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
     const x=(clientX-r.left)/r.width*W;
     return Math.max(0,Math.min(data.length-1,Math.round((x-P)/xs)));
   };
+  // 2. 클릭-투-점프: 차트 전체 클릭 시 해당 연도로 바로 이동
+  const handleClick=(e)=>{
+    const idx=getIdxFromEvent(e.clientX,e.currentTarget);
+    onDragYear&&onDragYear(idxToYear(idx));
+  };
+  // 1. 레이블 겹침 방지: 최고/최저 위치가 너무 가까우면 한쪽을 밀어냄
+  const mnLabelX=Math.min(Math.max(tx(mi),36),W-36);
+  const mxLabelX=Math.min(Math.max(tx(xi),36),W-36);
+  const mnLabelY=ty(mn)+19;
+  const mxLabelY=ty(mx)-9;
+  // 매수마커 레이블: 오른쪽 끝에 몰리면 왼쪽으로
+  const markerLabelX=bx>W-60?Math.max(bx-20,50):Math.min(Math.max(bx,50),W-50);
 
   return(
-    <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",padding:"16px 14px 24px",overflow:"hidden",marginBottom:"28px"}}>
+    <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",padding:"16px 14px 24px",marginBottom:"28px"}}>
+      {/* 최고/최저 레이블 — SVG 위 별도 영역 */}
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px",padding:"0 4px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"5px"}}>
+          <div style={{width:"8px",height:"8px",borderRadius:"50%",border:"2px solid #f87171",background:T.bgCard}}/>
+          <span style={{fontSize:"12px",color:"#f87171",fontWeight:"700"}}>최저 {displayPrice(mn)}</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:"5px"}}>
+          <span style={{fontSize:"12px",color:"#fbbf24",fontWeight:"700"}}>최고 {displayPrice(mx)}</span>
+          <div style={{width:"8px",height:"8px",borderRadius:"50%",border:"2px solid #fbbf24",background:T.bgCard}}/>
+        </div>
+      </div>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible",cursor:"crosshair"}}
         onMouseMove={e=>{
           const idx=getIdxFromEvent(e.clientX,e.currentTarget);
           setHoverIdx(idx);
-          if(e.buttons===1&&dragIdx!==null){setDragIdx(idx);onDragYear&&onDragYear(idxToYear(idx));}
+          if(e.buttons===1){setDragIdx(idx);onDragYear&&onDragYear(idxToYear(idx));}
         }}
-        onMouseLeave={()=>{setHoverIdx(null);}}
-        onMouseDown={e=>{const idx=getIdxFromEvent(e.clientX,e.currentTarget);if(Math.abs(idx-bi)<=2){setDragIdx(bi);}}}
+        onMouseLeave={()=>{setHoverIdx(null);setDragIdx(null);}}
+        onMouseDown={e=>{const idx=getIdxFromEvent(e.clientX,e.currentTarget);setDragIdx(idx);onDragYear&&onDragYear(idxToYear(idx));}}
         onMouseUp={()=>setDragIdx(null)}
+        onClick={handleClick}
         onTouchMove={e=>{
+          e.preventDefault();
           const idx=getIdxFromEvent(e.touches[0].clientX,e.currentTarget);
           setHoverIdx(idx);setDragIdx(idx);onDragYear&&onDragYear(idxToYear(idx));
         }}
@@ -163,24 +188,20 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
         <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={lc} stopOpacity="0.18"/><stop offset="100%" stopColor={lc} stopOpacity="0"/></linearGradient></defs>
         <path d={fp} fill="url(#cg)"/>
         <path d={lp} fill="none" stroke={lc} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
-        {/* 최저가 */}
+        {/* 최저가 점만 */}
         <circle cx={tx(mi).toFixed(1)} cy={ty(mn).toFixed(1)} r="4" fill={T.bg} stroke="#f87171" strokeWidth="2"/>
-        <rect x={Math.min(Math.max(tx(mi)-30,0),W-62)} y={(ty(mn)+8).toFixed(1)} width="62" height="16" rx="4" fill="#f8717130"/>
-        <text x={Math.min(Math.max(tx(mi),32),W-32)} y={(ty(mn)+19).toFixed(1)} textAnchor="middle" fill="#f87171" fontSize="13" fontWeight="700">최저 {displayPrice(mn)}</text>
-        {/* 최고가 */}
+        {/* 최고가 점만 */}
         <circle cx={tx(xi).toFixed(1)} cy={ty(mx).toFixed(1)} r="4" fill={T.bg} stroke="#fbbf24" strokeWidth="2"/>
-        <rect x={Math.min(Math.max(tx(xi)-30,0),W-62)} y={(ty(mx)-20).toFixed(1)} width="62" height="16" rx="4" fill="#fbbf2430"/>
-        <text x={Math.min(Math.max(tx(xi),32),W-32)} y={(ty(mx)-9).toFixed(1)} textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="700">최고 {displayPrice(mx)}</text>
         {/* 매수 마커 */}
         <line x1={bx.toFixed(1)} y1={P} x2={bx.toFixed(1)} y2={H-P} stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.7"/>
-        <circle cx={bx.toFixed(1)} cy={by.toFixed(1)} r={dragIdx!==null?7:5} fill="#60a5fa" stroke={T.bg} strokeWidth="2" style={{cursor:"grab"}}/>
-        <text x={Math.min(Math.max(bx,50),W-50)} y={(by-10).toFixed(1)} textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="700">
+        <circle cx={bx.toFixed(1)} cy={by.toFixed(1)} r={dragIdx!==null?7:5} fill="#60a5fa" stroke={T.bg} strokeWidth="2" style={{cursor:"crosshair"}}/>
+        <text x={markerLabelX} y={(by-10).toFixed(1)} textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="700">
           {idxToYear(bi)}년 {displayPrice(data[bi])}
         </text>
         {hoverIdx!==null&&<><line x1={hx.toFixed(1)} y1={P} x2={hx.toFixed(1)} y2={H-P} stroke={lc} strokeWidth="1" strokeDasharray="3,3" opacity="0.5"/><circle cx={hx.toFixed(1)} cy={hy.toFixed(1)} r="4" fill={lc} stroke={T.bg} strokeWidth="2"/></>}
       </svg>
       {dragIdx!==null&&(
-        <div style={{marginTop:"8px",padding:"6px 12px",background:"#60a5fa20",border:"1px solid #60a5fa40",borderRadius:"8px",fontSize:"12px",color:"#60a5fa",fontWeight:"400",textAlign:"center"}}>
+        <div style={{marginTop:"8px",padding:"6px 12px",background:"#60a5fa20",border:"1px solid #60a5fa40",borderRadius:"8px",fontSize:"12px",color:"#60a5fa",fontWeight:"500",textAlign:"center"}}>
           📌 {idxToYear(dragIdx)}년으로 매수 시점 설정 중… 손을 떼면 적용돼요
         </div>
       )}
@@ -464,7 +485,7 @@ export default function Home(){
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <div style={{display:"flex",gap:"4px",marginBottom:"16px",background:T.tabBg,borderRadius:"14px",padding:"4px"}}>
-              {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"11px 4px",background:activeTab===tab.id?T.tabActive:"transparent",border:`1px solid ${activeTab===tab.id?T.borderActive+"60":"transparent"}`,borderRadius:"10px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.tabInactive,fontSize:"13px",fontWeight:"400",transition:"all 0.2s"}}>{tab.label}</button>)}
+              {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"11px 4px",background:activeTab===tab.id?T.tabActive:"transparent",border:`1px solid ${activeTab===tab.id?T.borderActive+"60":"transparent"}`,borderRadius:"10px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.tabInactive,fontSize:"13px",fontWeight:activeTab===tab.id?"700":"400",transition:"all 0.2s"}}>{tab.label}</button>)}
             </div>
             {/* 검색 */}
             <div style={{marginBottom:"14px",position:"relative"}}>
@@ -574,11 +595,11 @@ export default function Home(){
                 <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>결과</span>
                 <div style={{flex:1,height:"1px",background:T.border}}/>
               </div>
-              <div style={{background:T.bgResult,borderLeft:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderRight:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderBottom:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderTop:`3px solid ${result.isProfit?T.accent:"#ef4444"}`,borderRadius:"20px",overflow:"hidden",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
+              <div style={{background:T.bgResult,borderLeft:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderRight:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderBottom:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderTop:`3px solid ${result.isProfit?T.accent:"#ef4444"}`,borderRadius:"20px",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
                 <div style={{padding:"22px 20px 0"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
                     <div>
-                      <div style={{fontSize:"15px",color:T.text,fontWeight:"300"}}>{selectedStock.name}</div>
+                      <div style={{fontSize:"22px",color:result.isProfit?T.accent:"#f87171",fontWeight:"700",letterSpacing:"-0.5px",lineHeight:1,marginBottom:"6px"}}>{selectedStock.name}</div>
                       <div style={{fontSize:"13px",color:T.textSub,marginTop:"3px",fontWeight:"500"}}>{result.buyDateStr} <br/> → 오늘 · {result.years}년 보유</div>
                     </div>
                     <div style={{background:result.isProfit?`${T.accent}20`:"rgba(239,68,68,0.15)",border:`1px solid ${result.isProfit?T.accent+"50":"#ef444450"}`,borderRadius:"12px",padding:"10px 16px",textAlign:"center"}}>
