@@ -507,7 +507,7 @@ export default function Home(){
               <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>매수 시점 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
               <div>
                 <span style={{fontSize:"32px",fontWeight:"300",color:T.text,letterSpacing:"-1px"}}>{investYear}년</span>
                 <span style={{fontSize:"14px",color:T.accent,fontWeight:"400",marginLeft:"8px"}}>오늘({getTodayMMDD()})</span>
@@ -574,8 +574,7 @@ export default function Home(){
                 <span style={{fontSize:"17px",fontWeight:"300",color:T.text,letterSpacing:"-0.3px"}}>결과</span>
                 <div style={{flex:1,height:"1px",background:T.border}}/>
               </div>
-              <div style={{background:T.bgResult,border:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderRadius:"20px",overflow:"hidden",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
-                <div style={{height:"3px",background:result.isProfit?`linear-gradient(90deg,${T.accentDim},${T.accent})`:"linear-gradient(90deg,#ef4444,#f87171)"}}/>
+              <div style={{background:T.bgResult,border:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderTop:`3px solid ${result.isProfit?T.accent:"#ef4444"}`,borderRadius:"20px",overflow:"hidden",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
                 <div style={{padding:"22px 20px 0"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
                     <div>
@@ -596,14 +595,14 @@ export default function Home(){
                     </div>
                     <div style={{display:"inline-flex",alignItems:"center",gap:"8px",padding:"8px 18px",background:result.isProfit?`${T.accent}15`:"rgba(239,68,68,0.12)",borderRadius:"20px",border:`1px solid ${result.isProfit?T.accent+"35":"#ef444435"}`}}>
                       <span style={{fontSize:"16px",color:result.isProfit?T.accent:"#f87171"}}>{result.isProfit?"▲":"▼"}</span>
-                      <span style={{fontSize:"15px",fontWeight:"300",color:result.isProfit?T.accent:"#f87171"}}>{formatKRW(Math.abs(result.profitKRW))} {result.isProfit?"수익":"손실"}</span>
+                      <span style={{fontSize:"15px",fontWeight:"300",color:result.isProfit?T.accent:"#f87171"}}><strong style={{fontWeight:"700"}}>{formatKRW(Math.abs(result.profitKRW))}</strong> {result.isProfit?"수익":"손실"}</span>
                     </div>
                   </div>
                   <div style={{display:"flex",gap:"8px",marginBottom:"12px"}}>
                     {[{label:"매수가",value:displayPrice(result.buyPrice)},{label:"현재가",value:displayPrice(result.currentPrice)},{label:"연평균 수익률",value:`${result.isProfit?"+":""}${result.cagr}%`,h:true}].map(item=>(
                       <div key={item.label} style={{flex:1,padding:"12px 8px",textAlign:"center",background:item.h?(result.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)",borderRadius:"10px",border:`1px solid ${item.h?(result.isProfit?T.accent+"35":"#ef444435"):T.border}`}}>
                         <div style={{fontSize:"11px",color:T.textSub,marginBottom:"5px",fontWeight:"400"}}>{item.label}</div>
-                        <div style={{fontSize:"13px",fontWeight:"300",color:item.h?(result.isProfit?T.accent:"#f87171"):T.text,wordBreak:"break-all"}}>{item.value}</div>
+                        <div style={{fontSize:"13px",fontWeight:item.h?"600":"300",color:item.h?(result.isProfit?T.accent:"#f87171"):T.text,wordBreak:"break-all"}}>{item.value}</div>
                       </div>
                     ))}
                   </div>
@@ -628,7 +627,7 @@ export default function Home(){
 
                   {/* 🔀 다른 종목과 비교 */}
                   <div style={{marginBottom:"14px"}}>
-                    <div style={{fontSize:"13px",color:T.textMuted,fontWeight:"400",marginBottom:"10px",textAlign:"center"}}>다른 종목과 비교해볼까요?</div>
+                    <div style={{fontSize:"14px",color:T.textSub,fontWeight:"600",marginBottom:"10px",textAlign:"center"}}>다른 종목과 비교해볼까요?</div>
                     <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"center",marginBottom:"12px"}}>
                       {[...US_PRESETS,...KR_PRESETS,...INDEX_PRESETS.slice(0,2),...COIN_PRESETS.slice(0,2)].filter(s=>s.ticker!==selectedStock.ticker).slice(0,12).map(s=>(
                         <button key={s.ticker} onClick={()=>setCompareStock(cs=>cs?.ticker===s.ticker?null:s)} style={{padding:"7px 13px",background:compareStock?.ticker===s.ticker?T.presetActive:T.presetInactive,border:`1px solid ${compareStock?.ticker===s.ticker?T.borderActive:T.border}`,borderRadius:"20px",cursor:"pointer",color:compareStock?.ticker===s.ticker?T.accent:T.presetInactiveText,fontSize:"13px",fontWeight:"400",transition:"all 0.15s"}}>
