@@ -172,19 +172,18 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
   // 매수마커 레이블: 오른쪽 끝에 몰리면 왼쪽으로
   const markerLabelX=bx>W-60?Math.max(bx-20,50):Math.min(Math.max(bx,50),W-50);
 
+  // 레이블 x 경계 보정 (텍스트 잘림 방지)
+  const labelW=70;
+  const mnLbX=Math.min(Math.max(tx(mi),labelW/2),W-labelW/2);
+  const mxLbX=Math.min(Math.max(tx(xi),labelW/2),W-labelW/2);
+  // 최저 레이블: 점 아래 / 최고 레이블: 점 위
+  // 단, 최저점이 차트 하단에 너무 붙으면 위로 올림
+  const mnBelow=ty(mn)<H-30;
+  const mnLbY=mnBelow?ty(mn)+22:ty(mn)-8;
+  const mxLbY=ty(mx)-14;
+
   return(
     <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",padding:"16px 14px 24px",marginBottom:"28px"}}>
-      {/* 최고/최저 레이블 — SVG 위 별도 영역 */}
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px",padding:"0 4px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:"5px"}}>
-          <div style={{width:"8px",height:"8px",borderRadius:"50%",border:"2px solid #f87171",background:T.bgCard}}/>
-          <span style={{fontSize:"12px",color:"#f87171",fontWeight:"700"}}>최저 {displayPrice(mn)}</span>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:"5px"}}>
-          <span style={{fontSize:"12px",color:"#fbbf24",fontWeight:"700"}}>최고 {displayPrice(mx)}</span>
-          <div style={{width:"8px",height:"8px",borderRadius:"50%",border:"2px solid #fbbf24",background:T.bgCard}}/>
-        </div>
-      </div>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible",cursor:"crosshair"}}
         onMouseMove={e=>{
           const idx=getIdxFromEvent(e.clientX,e.currentTarget);
@@ -205,10 +204,14 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
         <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={lc} stopOpacity="0.18"/><stop offset="100%" stopColor={lc} stopOpacity="0"/></linearGradient></defs>
         <path d={fp} fill="url(#cg)"/>
         <path d={lp} fill="none" stroke={lc} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
-        {/* 최저가 점만 */}
+        {/* 최저가 — 점 + 바로 아래 레이블 */}
         <circle cx={tx(mi).toFixed(1)} cy={ty(mn).toFixed(1)} r="4" fill={T.bg} stroke="#f87171" strokeWidth="2"/>
-        {/* 최고가 점만 */}
+        <rect x={(mnLbX-34).toFixed(1)} y={(mnLbY-13).toFixed(1)} width="68" height="16" rx="4" fill="#f8717122"/>
+        <text x={mnLbX.toFixed(1)} y={mnLbY.toFixed(1)} textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="700">최저 {displayPrice(mn)}</text>
+        {/* 최고가 — 점 + 바로 위 레이블 */}
         <circle cx={tx(xi).toFixed(1)} cy={ty(mx).toFixed(1)} r="4" fill={T.bg} stroke="#fbbf24" strokeWidth="2"/>
+        <rect x={(mxLbX-34).toFixed(1)} y={(mxLbY-13).toFixed(1)} width="68" height="16" rx="4" fill="#fbbf2422"/>
+        <text x={mxLbX.toFixed(1)} y={mxLbY.toFixed(1)} textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="700">최고 {displayPrice(mx)}</text>
         {/* 매수 마커 */}
         <line x1={bx.toFixed(1)} y1={P} x2={bx.toFixed(1)} y2={H-P} stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.7"/>
         <circle cx={bx.toFixed(1)} cy={by.toFixed(1)} r={dragIdx!==null?7:5} fill="#60a5fa" stroke={T.bg} strokeWidth="2" style={{cursor:"crosshair"}}/>
@@ -563,20 +566,40 @@ export default function Home(){
               <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>매수 시점 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
-              <div>
-                <span style={{fontSize:"32px",fontWeight:"300",color:T.text,letterSpacing:"-1px"}}>{investYear}년</span>
-                <span style={{fontSize:"14px",color:T.accent,fontWeight:"400",marginLeft:"8px"}}>오늘({getTodayMMDD()})</span>
-                {buyPrice&&!priceLoading&&<span style={{fontSize:"14px",color:T.textSub,fontWeight:"400",marginLeft:"6px"}}>{displayPrice(buyPrice)}</span>}
-                <span style={{fontSize:"13px",color:T.textSub,marginLeft:"4px",fontWeight:"400"}}>매수</span>
+            {/* 연도 대형 표시 */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
+              <div style={{display:"flex",alignItems:"baseline",gap:"8px"}}>
+                <span style={{fontSize:"40px",fontWeight:"700",color:T.text,letterSpacing:"-2px",lineHeight:1}}>{investYear}년</span>
+                {buyPrice&&!priceLoading&&<span style={{fontSize:"14px",color:T.textMuted,fontWeight:"400"}}>({getTodayMMDD()} 기준 {displayPrice(buyPrice)})</span>}
               </div>
               <div style={{textAlign:"right"}}>
-                {priceLoading&&<div style={{fontSize:"13px",color:T.accent,fontWeight:"400"}}>🦜 조회 중…</div>}
-                {priceError&&!priceLoading&&<div style={{fontSize:"12px",color:"#f87171",fontWeight:"400"}}>{priceError}</div>}
-                {liveReturnPct&&!priceLoading&&<div style={{fontSize:"18px",fontWeight:"600",color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171",letterSpacing:"-0.5px"}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</div>}
+                {priceLoading&&<div style={{fontSize:"13px",color:T.accent,fontWeight:"400"}}>📡 조회 중…</div>}
+                {priceError&&!priceLoading&&<div style={{fontSize:"11px",color:"#f87171",fontWeight:"400"}}>{priceError}</div>}
               </div>
             </div>
-            <div style={{fontSize:"12px",color:T.textMuted,textAlign:"center",marginBottom:"8px",fontWeight:"400"}}>👆 차트를 좌우로 드래그해서 매수 시점을 선택하세요</div>
+            {/* 스토리텔링 카드 */}
+            {buyPrice&&currentPrice&&!priceLoading&&(()=>{
+              const onePct=((currentPrice/buyPrice-1)*100).toFixed(1);
+              const isUp=parseFloat(onePct)>=0;
+              const emoji=parseFloat(onePct)>5000?"🦜🦜🦜":parseFloat(onePct)>1000?"🦜🦜":parseFloat(onePct)>0?"🦜":"😭";
+              return(
+                <div style={{marginBottom:"14px",padding:"14px 16px",background:isUp?`${T.accent}10`:"rgba(239,68,68,0.08)",borderRadius:"14px",border:`1px solid ${isUp?T.accent+"30":"#ef444430"}`}}>
+                  <div style={{fontSize:"13px",color:T.textMuted,fontWeight:"400",marginBottom:"6px"}}>
+                    {investYear}년 오늘, <strong style={{color:T.text,fontWeight:"700"}}>{selectedStock.name}</strong> 1주({displayPrice(buyPrice)})를 샀다면?
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                    <div style={{fontSize:"26px",fontWeight:"800",color:isUp?T.accent:"#f87171",letterSpacing:"-1px"}}>
+                      {isUp?"+":""}{onePct}% {emoji}
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:"11px",color:T.textMuted,fontWeight:"400"}}>1주 현재가</div>
+                      <div style={{fontSize:"15px",fontWeight:"700",color:T.text}}>{displayPrice(currentPrice)}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+            <div style={{fontSize:"12px",color:T.textMuted,textAlign:"center",marginBottom:"8px",fontWeight:"400"}}>👆 차트를 드래그하거나 클릭해서 시점을 바꿔보세요</div>
             <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
             <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px"}}>
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{firstYear}년</span>
@@ -599,12 +622,17 @@ export default function Home(){
               <input type="number" value={investAmount} onChange={e=>setInvestAmount(e.target.value)} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:"10px",padding:"13px 60px 13px 16px",color:T.text,fontSize:"16px",fontWeight:"400",outline:"none"}} placeholder="직접 입력"/>
               <span style={{position:"absolute",right:"16px",top:"50%",transform:"translateY(-50%)",color:T.textSub,fontSize:"13px",fontWeight:"400"}}>만원</span>
             </div>
-            {/* 주수 안내 */}
+            {/* 주수 안내 — 호기심 유발 */}
             {buyPrice&&shares>0&&!priceLoading&&(
-              <div style={{marginTop:"10px",padding:"10px 14px",background:T.presetActive,borderRadius:"10px",border:`1px solid ${T.borderActive}40`}}>
-                <span style={{fontSize:"13px",color:T.accent,fontWeight:"400"}}>
-                  💡 {investYear}년 {displayPrice(buyPrice)} 기준 → 약 <strong style={{fontWeight:"600"}}>{shares.toLocaleString()}주</strong> 매수 가능
-                </span>
+              <div style={{marginTop:"12px",padding:"14px 16px",background:isDark?"rgba(96,165,250,0.08)":"rgba(59,130,246,0.06)",borderRadius:"14px",border:"1px solid rgba(96,165,250,0.25)"}}>
+                <div style={{fontSize:"12px",color:"#93c5fd",fontWeight:"500",marginBottom:"6px",letterSpacing:"0.3px"}}>💡 잠깐, 이거 아셨나요?</div>
+                <div style={{fontSize:"14px",color:T.text,fontWeight:"400",lineHeight:"1.6"}}>
+                  {investYear}년에 <strong style={{color:"#60a5fa",fontWeight:"700"}}>{displayPrice(buyPrice)}</strong>씩 투자했다면<br/>
+                  지금 선택한 금액으로 <strong style={{color:"#60a5fa",fontWeight:"700"}}>{shares.toLocaleString()}주</strong>를 살 수 있었어요
+                </div>
+                <div style={{marginTop:"8px",fontSize:"12px",color:"#93c5fd",fontWeight:"400"}}>
+                  📈 지금 몇 주가 됐을지 아래에서 계산해보세요 →
+                </div>
               </div>
             )}
           </div>
