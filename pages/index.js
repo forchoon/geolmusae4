@@ -193,31 +193,11 @@ function StockChart({ticker,investYear,T,displayPrice,onDragYear}){
 
 // ── 쿠팡 파트너스 배너 ───────────────────────────────────────
 function CoupangBanner({isDark,T}){
-  const products=[
-    {emoji:"📚",title:"주식투자 무작정 따라하기",desc:"베스트셀러 미국주식 입문서",price:"18,000원",url:"https://link.coupang.com/YOUR_CODE_1"},
-    {emoji:"💰",title:"나는 주식 대신 달러를 산다",desc:"환테크+배당주 전략 완전정복",price:"16,500원",url:"https://link.coupang.com/YOUR_CODE_2"},
-    {emoji:"📈",title:"ETF 투자의 정석",desc:"패시브 투자로 시장 수익률 잡기",price:"19,800원",url:"https://link.coupang.com/YOUR_CODE_3"},
-  ];
-  const [idx,setIdx]=useState(0);
-  useEffect(()=>{const t=setInterval(()=>setIdx(i=>(i+1)%products.length),4000);return()=>clearInterval(t);},[]);
-  const p=products[idx];
-  return(
+ return(
     <div style={{marginBottom:"20px",borderRadius:"14px",overflow:"hidden",border:`1px solid ${T.border}`,position:"relative"}}>
       <div style={{position:"absolute",top:"9px",right:"10px",zIndex:2,fontSize:"10px",color:T.textMuted,background:T.bgCard,padding:"2px 7px",borderRadius:"4px",border:`1px solid ${T.border}`,fontWeight:"400"}}>광고 · 쿠팡파트너스</div>
-      <div onClick={()=>window.open(p.url,"_blank","noopener,noreferrer")} style={{background:T.bgCard,padding:"14px 16px",display:"flex",alignItems:"center",gap:"12px",cursor:"pointer"}}>
-        <div style={{width:"56px",height:"56px",flexShrink:0,borderRadius:"10px",background:T.presetInactive,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"}}>{p.emoji}</div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:"13px",fontWeight:"300",color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:"2px"}}>{p.title}</div>
-          <div style={{fontSize:"12px",color:T.textSub,fontWeight:"400",marginBottom:"5px"}}>{p.desc}</div>
-          <div style={{display:"flex",alignItems:"center",gap:"7px"}}>
-            <span style={{fontSize:"14px",fontWeight:"300",color:isDark?"#60a5fa":"#2563eb"}}>{p.price}</span>
-            <span style={{fontSize:"11px",padding:"2px 7px",background:"rgba(239,68,68,0.12)",color:"#ef4444",borderRadius:"4px",fontWeight:"300"}}>로켓배송</span>
-          </div>
-        </div>
-        <div style={{fontSize:"12px",color:isDark?"#60a5fa":"#2563eb",fontWeight:"300",flexShrink:0}}>구매 →</div>
-      </div>
-      <div style={{display:"flex",justifyContent:"center",gap:"4px",padding:"6px 0",background:T.bgDeep,borderTop:`1px solid ${T.border}`}}>
-        {products.map((_,i)=><div key={i} onClick={()=>setIdx(i)} style={{width:i===idx?"16px":"5px",height:"5px",borderRadius:"3px",background:i===idx?T.accent:T.border,cursor:"pointer",transition:"all 0.3s"}}/>)}
+      <div style={{display:"flex",justifyContent:"center",padding:"8px 0",background:T.bgCard}}>
+        <iframe src="https://ads-partners.coupang.com/widgets.html?id=982204&template=carousel&trackingCode=AF6806576&subId=&width=360&height=250&tsource=" width="360" height="250" frameBorder="0" scrolling="no" referrerPolicy="unsafe-url"></iframe>
       </div>
       <div style={{padding:"5px 12px",background:T.bgDeep,fontSize:"10px",color:T.textMuted,textAlign:"center",fontWeight:"400"}}>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div>
     </div>
