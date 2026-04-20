@@ -629,7 +629,7 @@ export default function Home(){
                             const better=parseFloat(item.r.returnPct)>=parseFloat(i===0?compareResult.returnPct:result.returnPct);
                             return(
                               <div key={i} style={{flex:1,padding:"16px 12px",background:better?(result.isProfit?`${T.accent}12`:"rgba(239,68,68,0.08)"):"transparent",border:`2px solid ${better?(result.isProfit?T.accent+"60":"#ef444460"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
-                                {better&&<div style={{fontSize:"12px",color:result.isProfit?T.accent:"#f87171",fontWeight:"300",marginBottom:"6px"}}>👑 승자</div>}
+                                <div style={{fontSize:"12px",color:better?(result.isProfit?T.accent:"#f87171"):T.textMuted,fontWeight:"300",marginBottom:"6px"}}>{better?"👑 승자":"😢 패자"}</div>
                                 <div style={{fontSize:"13px",fontWeight:"300",color:T.text,marginBottom:"8px"}}>{item.name}</div>
                                 <div style={{fontSize:"22px",fontWeight:"300",color:parseFloat(item.r.returnPct)>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"6px", wordBreake:"break-all"}}>{parseFloat(item.r.returnPct)>=0?"+":""}{item.r.returnPct}%</div>
                                 <div style={{fontSize:"13px",color:T.textSub,fontWeight:"400"}}>{formatKRW(Math.round(item.r.currentValueKRW))}</div>
