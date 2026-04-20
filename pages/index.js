@@ -75,6 +75,23 @@ const IPO_YEAR = {
 };
 const CURRENT_YEAR = new Date().getFullYear();
 
+const IPO_PRICE = {
+  NVDA:12,AAPL:0.10,TSLA:17,AMZN:18,MSFT:0.08,GOOGL:85,META:38,NFLX:15,
+  SPY:43,QQQ:54,DIA:78,IWM:42,VTI:60,GLD:44,
+  "BTC-USD":0.08,"ETH-USD":0.43,"DOGE-USD":0.0002,"SOL-USD":0.77,"XRP-USD":0.005,
+  "005930.KS":560,"000660.KS":2100,"035720.KS":3600,"035420.KS":7800,
+  "051910.KS":15000,"006400.KS":12000,"207940.KS":80000,"005380.KS":28000,
+};
+const SECTOR_MAP = {
+  NVDA:"반도체",AAPL:"빅테크",TSLA:"전기차",AMZN:"빅테크",MSFT:"빅테크",GOOGL:"빅테크",META:"소셜미디어",NFLX:"스트리밍",
+  SPY:"ETF · S&P500",QQQ:"ETF · 나스닥",DIA:"ETF · 다우",IWM:"ETF · 소형주",VTI:"ETF · 전체시장",GLD:"ETF · 금",
+  "BTC-USD":"암호화폐","ETH-USD":"암호화폐","DOGE-USD":"밈코인","SOL-USD":"암호화폐","XRP-USD":"암호화폐",
+  "005930.KS":"반도체","000660.KS":"반도체","035720.KS":"플랫폼","035420.KS":"플랫폼",
+  "051910.KS":"화학·배터리","006400.KS":"배터리","207940.KS":"바이오","005380.KS":"자동차",
+};
+function getIpoPrice(yt){return IPO_PRICE[yt]||null;}
+function getSector(yt){return SECTOR_MAP[yt]||null;}
+
 function getYahooTicker(t){return TICKER_MAP[t]||t;}
 function getCurrency(yt){return CURRENCY_MAP[yt]||"USD";}
 function getIpoYear(yt){return IPO_YEAR[yt]||2000;}
@@ -458,7 +475,7 @@ export default function Home(){
             <span>{isDark?"☀️":"🌙"}</span><span>{isDark?"라이트":"다크"}</span>
           </button>
           <div style={{fontSize:"36px",marginBottom:"4px"}}>🦜</div>
-          <h1 style={{fontSize:"32px",fontWeight:"600",margin:0,letterSpacing:"-1px",background:isDark?"linear-gradient(135deg,#ffffff 0%,#86efac 60%,#4ade80 100%)":"linear-gradient(135deg,#0d1a10 0%,#16a34a 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>껄무새</h1>
+          <h1 style={{fontSize:"32px",fontWeight:"600",margin:0,letterSpacing:"-1px",background:isDark?"linear-gradient(135deg,#ffffff 0%,#86efac 60%,#4ade80 100%)":"linear-gradient(135deg,#0d1a10 0%,#16a34a 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"inline-block",isolation:"isolate"}}>껄무새</h1>
           <p style={{fontSize:"13px",color:T.accent,margin:"6px 0 2px",fontWeight:"500"}}>그때 살걸!!! 그때 팔걸!!! 껄껄껄 🦜</p>
         </div>
 
@@ -490,7 +507,7 @@ export default function Home(){
             {/* 검색 */}
             <div style={{marginBottom:"14px",position:"relative"}}>
               <div style={{position:"relative"}}>
-                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"종목명 검색 (예: samsung)":activeTab==="coin"?"코인 검색 (예: bitcoin)":activeTab==="index"?"SPY, QQQ…":"티커 또는 종목명 검색"} style={{width:"100%",background:T.inputBg,border:`1.5px solid ${T.borderActive}60`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"14px",fontWeight:"400",outline:"none",boxShadow:`0 0 0 3px ${T.accent}10`}}/>
+                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"🇰🇷 영어로 검색하세요 (예: samsung, kakao)":activeTab==="coin"?"₿ 영어로 검색하세요 (예: bitcoin, ETH)":activeTab==="index"?"📊 티커로 검색하세요 (예: SPY, QQQ, KOSPI)":"🇺🇸 영어로 검색하세요 (예: apple, NVDA)"} style={{width:"100%",background:T.inputBg,border:`1.5px solid ${T.borderActive}60`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"14px",fontWeight:"400",outline:"none",boxShadow:`0 0 0 3px ${T.accent}10`}}/>
                 <span style={{position:"absolute",right:"14px",top:"50%",transform:"translateY(-50%)",fontSize:"16px"}}>{searching?"⏳":"🔎"}</span>
               </div>
               {showDropdown&&<>
@@ -507,12 +524,30 @@ export default function Home(){
             </div>
             <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"12px",padding:"14px",marginBottom:"16px"}}>
               <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-                <div style={{background:T.presetActive,borderRadius:"8px",padding:"8px 11px",flexShrink:0}}><div style={{color:T.accent,fontWeight:"300",fontSize:"11px"}}>{isUSD?"USD":"KRW"}</div></div>
+                <div style={{background:T.presetActive,borderRadius:"8px",padding:"8px 11px",flexShrink:0}}><div style={{color:T.accent,fontWeight:"500",fontSize:"11px"}}>{isUSD?"USD":"KRW"}</div></div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{color:T.text,fontWeight:"500",fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
-                  <div style={{color:T.textSub,fontSize:"13px",marginTop:"2px",fontWeight:"600"}}>{firstYear}년 상장 · 현재 {priceLoading?"조회 중…":currentPrice?displayPrice(currentPrice):"-"}</div>
+                  <div style={{color:T.text,fontWeight:"600",fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
+                  <div style={{color:T.textSub,fontSize:"13px",marginTop:"2px",fontWeight:"500"}}>현재 {priceLoading?"조회 중…":currentPrice?displayPrice(currentPrice):"-"}</div>
                 </div>
-                {liveReturnPct&&<span style={{color:parseFloat(liveReturnPct)>=0?T.accent:"#f87171",fontSize:"15px",fontWeight:"600",flexShrink:0}}>{parseFloat(liveReturnPct)>=0?"+":""}{liveReturnPct}%</span>}
+              </div>
+              {/* 인포 칩 */}
+              <div style={{display:"flex",gap:"6px",flexWrap:"wrap",marginTop:"12px",paddingTop:"12px",borderTop:`1px solid ${T.border}`}}>
+                <div style={{display:"flex",alignItems:"center",gap:"4px",padding:"4px 10px",background:T.bgDeep,borderRadius:"20px",border:`1px solid ${T.border}`}}>
+                  <span style={{fontSize:"11px",color:T.textMuted,fontWeight:"400"}}>📅 상장</span>
+                  <span style={{fontSize:"12px",color:T.textSub,fontWeight:"600"}}>{firstYear}년</span>
+                </div>
+                {getIpoPrice(selectedStock.yahooTicker)&&(
+                  <div style={{display:"flex",alignItems:"center",gap:"4px",padding:"4px 10px",background:T.bgDeep,borderRadius:"20px",border:`1px solid ${T.border}`}}>
+                    <span style={{fontSize:"11px",color:T.textMuted,fontWeight:"400"}}>💰 상장가</span>
+                    <span style={{fontSize:"12px",color:T.textSub,fontWeight:"600"}}>{isUSD?`$${getIpoPrice(selectedStock.yahooTicker).toLocaleString()}`:formatKRW(getIpoPrice(selectedStock.yahooTicker))}</span>
+                  </div>
+                )}
+                {getSector(selectedStock.yahooTicker)&&(
+                  <div style={{display:"flex",alignItems:"center",gap:"4px",padding:"4px 10px",background:T.bgDeep,borderRadius:"20px",border:`1px solid ${T.border}`}}>
+                    <span style={{fontSize:"11px",color:T.textMuted,fontWeight:"400"}}>🏢</span>
+                    <span style={{fontSize:"12px",color:T.textSub,fontWeight:"600"}}>{getSector(selectedStock.yahooTicker)}</span>
+                  </div>
+                )}
               </div>
               {isUSD&&<div style={{marginTop:"10px",paddingTop:"10px",borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:"6px"}}>
                 <span style={{fontSize:"12px",color:T.textSub,marginRight:"2px",fontWeight:"400"}}>표시 통화</span>
@@ -595,7 +630,8 @@ export default function Home(){
                 <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>결과</span>
                 <div style={{flex:1,height:"1px",background:T.border}}/>
               </div>
-              <div style={{background:T.bgResult,borderLeft:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderRight:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderBottom:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderTop:`3px solid ${result.isProfit?T.accent:"#ef4444"}`,borderRadius:"20px",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
+              <div style={{position:"relative",background:T.bgResult,border:`1px solid ${result.isProfit?T.accentDim+"80":"#ef444460"}`,borderRadius:"20px",boxShadow:result.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
+                <div style={{position:"absolute",top:0,left:0,right:0,height:"3px",background:result.isProfit?T.accent:"#ef4444",borderRadius:"20px 20px 0 0",zIndex:2}}/>
                 <div style={{padding:"22px 20px 0"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
                     <div>
@@ -697,7 +733,7 @@ export default function Home(){
         {/* 푸터 */}
         <footer style={{maxWidth:"600px",margin:"0 auto",padding:"28px 16px 48px",borderTop:`1px solid ${T.border}`,textAlign:"center"}}>
           <div style={{fontSize:"22px",marginBottom:"6px"}}>🦜</div>
-          <div style={{fontSize:"15px",fontWeight:"300",background:isDark?"linear-gradient(135deg,#fff,#86efac)":"linear-gradient(135deg,#0d1a10,#16a34a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",marginBottom:"2px"}}>껄무새 · stockparrot.kr</div>
+          <div style={{fontSize:"15px",fontWeight:"300",background:isDark?"linear-gradient(135deg,#fff,#86efac)":"linear-gradient(135deg,#0d1a10,#16a34a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"inline-block",isolation:"isolate",marginBottom:"2px"}}>껄무새 · stockparrot.kr</div>
           <div style={{fontSize:"12px",color:T.textSub,marginTop:"12px",lineHeight:"1.8",fontWeight:"400"}}>⚠️ 본 서비스는 참고용 엔터테인먼트 콘텐츠로, 투자 조언이 아닙니다.<br/>과거 수익률은 미래 성과를 보장하지 않습니다.</div>
           <div style={{marginTop:"16px",fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>© {CURRENT_YEAR} 껄무새 (stockparrot.kr). All rights reserved.</div>
           <div style={{fontSize:"11px",color:T.textFaint,marginTop:"4px",fontWeight:"400"}}>문의: <a href="mailto:to.choon@gmail.com" style={{color:T.accent,textDecoration:"none",fontWeight:"300"}}>to.choon@gmail.com</a></div>
