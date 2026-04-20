@@ -558,11 +558,11 @@ export default function Home(){
               <input type="range" min={firstYear} max={lastYear} value={investYear} onChange={e=>{setInvestYear(parseInt(e.target.value));setResult(null);}} style={{position:"absolute",top:0,left:0,width:"100%",height:"20px",opacity:0,cursor:"pointer",margin:0,padding:0}}/>
               <div style={{position:"absolute",top:"50%",transform:"translate(-50%,-50%)",left:`${sliderPct}%`,width:"22px",height:"22px",background:T.accent,borderRadius:"50%",border:`3px solid ${T.bg}`,pointerEvents:"none"}}/>
             </div>
-            <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px"}}>
+<StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px"}}>
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{firstYear}년</span>
               <span style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{Math.round((firstYear+lastYear)/2)}년</span>
               <span style={{fontSize:"12px",color:T.accent,fontWeight:"300"}}>오늘</span>
-                              <StockChart ticker={selectedStock.ticker} investYear={investYear} T={T} displayPrice={displayPrice} onDragYear={yr=>{setInvestYear(yr);setResult(null);}}/>
 
             </div>
           </div>
