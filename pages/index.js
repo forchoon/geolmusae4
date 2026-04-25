@@ -288,10 +288,10 @@ function RankingSection({activeTab, T, isDark}){
   const [loading, setLoading] = useState(true);
 
   const RANKING_CONFIG = {
-    us: { title:"지금 이 순간 후회 중인 미국 껄무새", messages:["를 새벽에 계산하며 후회 중","로 눈물 흘린 껄무새들","에 올인했던 그날을 기억하며","를 팔 껄 팔 껄 껄껄껄"] },
-    kr: { title:"지금 이 순간 통곡 중인 국내 껄무새", messages:["로 통곡하는 껄무새들","를 보며 '살 껄...' 중얼거리는 중","에 몰린 껄무새들의 눈물","를 다시 계산하며 한숨"] },
-    coin: { title:"가즈아! 를 외치고 있는 코인 껄무새", messages:["에 '가즈아!' 외쳤던 껄무새들","로 부자 되려던 꿈","를 홀딩 중인 다이아몬드 핸드","에 모든 것을 건 껄무새들"] },
-    index: { title:"안전빵인 척하는 ETF 껄무새", messages:["로 안전빵 노렸던 껄무새들","의 등락에 심장 쫄깃","에 장기투자 선언한 껄무새들","로 노후 준비하는 중"] },
+    us: { title:"지금 이 순간 후회 중인 미국 껄무새", messages:["애플"] },
+    kr: { title:"지금 이 순간 통곡 중인 국내 껄무새", messages:["삼성전자"] },
+    coin: { title:"가즈아! 를 외치고 있는 코인 껄무새", messages:["비트코인"] },
+    index: { title:"안전빵인 척하는 ETF 껄무새", messages:["SPY"] },
   };
 
   const config = RANKING_CONFIG[activeTab];
@@ -308,9 +308,7 @@ function RankingSection({activeTab, T, isDark}){
         const data = await res.json();
         setRanking(data.ranking || []);
         if (data.lastTicker) {
-          const msgs = config.messages;
-          const msg = msgs[Math.floor(Math.random() * msgs.length)];
-          setLastMsg(`${data.lastTicker}${msg}`);
+          setLastMsg(data.lastTicker);
         }
       } catch(e) {
         setRanking([]);
@@ -366,8 +364,8 @@ function RankingSection({activeTab, T, isDark}){
 
           {/* 마지막 메시지 */}
           {lastMsg&&(
-            <div style={{fontSize:"12px",color:T.textMuted,fontWeight:"400",fontStyle:"italic",paddingTop:"4px"}}>
-              💬 방금 전, '{lastMsg}'
+            <div style={{fontSize:"12px",color:T.textMuted,fontWeight:"400",paddingTop:"4px"}}>
+              💬 방금 전, 누군가 '<strong style={{color:T.textSub,fontWeight:"500"}}>{lastMsg}</strong>'을 껄무새하며 눈물을 흘렸습니다. 🦜💦
             </div>
           )}
         </>
