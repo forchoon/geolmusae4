@@ -66,9 +66,10 @@ export default async function handler(req, res) {
         });
 
         const lastTicker = allRows.length > 0 ? allRows[0][0] : null;
+        const lastTimestamp = allRows.length > 0 ? allRows[0][1] : null;
 
         res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate");
-        return res.json({ lastTicker });
+        return res.json({ lastTicker, lastTimestamp });
       }
 
       const response = await sheets.spreadsheets.values.get({

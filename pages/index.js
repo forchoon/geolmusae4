@@ -437,11 +437,6 @@ function RankingSection({activeTab, T, isDark, onLiveFeed}){
           </div>
 
           {/* 마지막 메시지 */}
-          {lastMsg&&(
-            <div style={{fontSize:"12px",color:T.textMuted,fontWeight:"400",paddingTop:"4px"}}>
-              💬 방금 전, 누군가 '<strong style={{color:T.textSub,fontWeight:"500"}}>{lastMsg}</strong>'을 껄무새하며 눈물을 흘렸습니다. 🦜💦
-            </div>
-          )}
         </>
       )}
       <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.2)}}`}</style>
@@ -478,6 +473,30 @@ export default function Home(){
   const [chartData,setChartData]=useState(null);
   const [chartLoading,setChartLoading]=useState(false);
   const [liveFeedMsg,setLiveFeedMsg]=useState("");
+  const [liveFeedTime,setLiveFeedTime]=useState("");
+  const [liveFeedIdx,setLiveFeedIdx]=useState(0);
+  const [liveFeedVisible,setLiveFeedVisible]=useState(true);
+
+  const getTimeAgo = (timestamp) => {
+    if (!timestamp) return "";
+    const diff = Math.floor((Date.now() - new Date(timestamp)) / 1000);
+    if (diff < 60) return "방금 전";
+    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+    return `${Math.floor(diff/86400)}일 전`;
+  };
+
+  useEffect(()=>{
+    if(!liveFeedMsg) return;
+    const interval = setInterval(()=>{
+      setLiveFeedVisible(false);
+      setTimeout(()=>{
+        setLiveFeedIdx(i=>(i+1)%3);
+        setLiveFeedVisible(true);
+      }, 400);
+    }, 5000);
+    return ()=>clearInterval(interval);
+  },[liveFeedMsg]);
 
   // 전체 탭 실시간 피드
   useEffect(()=>{
@@ -486,6 +505,7 @@ export default function Home(){
         const res = await fetch('/api/ranking?tab=all');
         const data = await res.json();
         if (data.lastTicker) setLiveFeedMsg(data.lastTicker);
+        if (data.lastTimestamp) setLiveFeedTime(getTimeAgo(data.lastTimestamp));
       } catch(e) {}
     };
     fetchLiveFeed();
@@ -699,18 +719,29 @@ export default function Home(){
         <div style={{maxWidth:"600px",margin:"0 auto 8px",padding:"0 16px"}}>
           <div style={{display:"flex",alignItems:"center",gap:"8px",padding:"10px 16px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"12px",minHeight:"44px"}}>
             <div style={{display:"flex",alignItems:"center",gap:"5px",flexShrink:0}}>
-              <span style={{width:"6px",height:"6px",background:T.accent,borderRadius:"50%",display:"inline-block",animation:"pulse 2s infinite"}}/>
+              <div style={{position:"relative",width:"8px",height:"8px",flexShrink:0}}>
+                <span style={{position:"absolute",inset:0,background:T.accent,borderRadius:"50%",animation:"liveRing 2s ease-out infinite",opacity:0}}/>
+                <span style={{position:"absolute",inset:"1px",background:T.accent,borderRadius:"50%"}}/>
+              </div>
               <span style={{fontSize:"11px",fontWeight:"600",color:T.accent}}>Live</span>
             </div>
             <div style={{width:"1px",height:"14px",background:T.border,flexShrink:0}}/>
-            {liveFeedMsg
-              ? <span style={{fontSize:"13px",color:T.textSub,fontWeight:"400",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                  💬 방금 전, 누군가 '<strong style={{color:T.text,fontWeight:"600"}}>{liveFeedMsg}</strong>'을 껄무새하며 눈물을 흘렸습니다 🦜💦
-                </span>
-              : <span style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>
-                  🦜 껄무새들의 실시간 후회가 모이는 곳
-                </span>
-            }
+            <span style={{
+              fontSize:"13px",
+              color:T.textSub,
+              fontWeight:"400",
+              overflow:"hidden",
+              textOverflow:"ellipsis",
+              whiteSpace:"nowrap",
+              opacity:liveFeedVisible?1:0,
+              transition:"opacity 0.4s ease"
+            }}>
+              {liveFeedMsg ? [
+                <span key={0}>🦜 방금 누군가 <strong style={{color:T.text,fontWeight:"600"}}>'{liveFeedMsg}'</strong> 껄무새 중{liveFeedTime&&<span style={{color:T.textMuted,fontWeight:"400"}}> · {liveFeedTime}</span>}</span>,
+                <span key={1}><strong style={{color:T.text,fontWeight:"600"}}>{liveFeedMsg}</strong> 껄무새 발생 🦜💦{liveFeedTime&&<span style={{color:T.textMuted,fontWeight:"400"}}> · {liveFeedTime}</span>}</span>,
+                <span key={2}>😭 <strong style={{color:T.text,fontWeight:"600"}}>{liveFeedMsg}</strong> · 후회 중{liveFeedTime&&<span style={{color:T.textMuted,fontWeight:"400"}}> · {liveFeedTime}</span>}</span>,
+              ][liveFeedIdx] : <span>🦜 껄무새들의 실시간 후회가 모이는 곳</span>}
+            </span>
           </div>
         </div>
 
@@ -1066,6 +1097,7 @@ export default function Home(){
         button:active{transform:scale(0.97);}
         input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#4ade80;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,222,128,0.4);}
         input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#4ade80;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,222,128,0.4);}
+        @keyframes liveRing{0%{transform:scale(1);opacity:0.8}100%{transform:scale(2.8);opacity:0}}
       `}</style>
     </>
   );
