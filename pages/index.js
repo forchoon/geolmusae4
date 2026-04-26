@@ -1049,7 +1049,7 @@ export default function Home(){
                           <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
                             {/* 내 종목 */}
                             <div style={{flex:1,padding:"14px 10px",background:iWin?(result.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):"transparent",border:`2px solid ${iWin?(result.isProfit?T.accent:"#f87171"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
-                              {iWin&&<div style={{fontSize:"14px",marginBottom:"4px"}}>👑</div>}
+                              <div style={{fontSize:"14px",marginBottom:"4px",opacity:iWin?1:0}}>👑</div>
                               <div style={{fontSize:"12px",fontWeight:"600",color:T.text,marginBottom:"6px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
                               <div style={{fontSize:"20px",fontWeight:"800",color:myPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{myPct>=0?"+":""}{result.returnPct}%</div>
                               <div style={{fontSize:"12px",color:T.textSub,fontWeight:"500"}}>{formatKRW(Math.round(result.currentValueKRW))}</div>
@@ -1062,7 +1062,7 @@ export default function Home(){
 
                             {/* 비교 종목 */}
                             <div style={{flex:1,padding:"14px 10px",background:!iWin?(compareResult.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):"transparent",border:`2px solid ${!iWin?(compareResult.isProfit?T.accent:"#f87171"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
-                              {!iWin&&<div style={{fontSize:"14px",marginBottom:"4px"}}>👑</div>}
+                              <div style={{fontSize:"14px",marginBottom:"4px",opacity:!iWin?1:0}}>👑</div>
                               <div style={{fontSize:"12px",fontWeight:"600",color:T.text,marginBottom:"6px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{compareStock.name}</div>
                               <div style={{fontSize:"20px",fontWeight:"800",color:cpPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{cpPct>=0?"+":""}{compareResult.returnPct}%</div>
                               <div style={{fontSize:"12px",color:T.textSub,fontWeight:"500"}}>{formatKRW(Math.round(compareResult.currentValueKRW))}</div>
