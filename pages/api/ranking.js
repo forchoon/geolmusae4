@@ -42,6 +42,35 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing tab parameter' });
       }
 
+      // 전체 탭에서 최신 종목 가져오기
+      if (tab === 'all') {
+        const tabs = ['us', 'kr', 'coin', 'index'];
+        let allRows = [];
+
+        for (const t of tabs) {
+          try {
+            const r = await sheets.spreadsheets.values.get({
+              spreadsheetId: SHEET_ID,
+              range: `${t}!A:D`
+            });
+            const rows = (r.data.values || []).map(row => [...row, t]);
+            allRows = allRows.concat(rows);
+          } catch(e) {}
+        }
+
+        // 타임스탬프 기준 정렬해서 가장 최근 종목
+        allRows.sort((a, b) => {
+          const ta = a[1] || '';
+          const tb = b[1] || '';
+          return tb.localeCompare(ta);
+        });
+
+        const lastTicker = allRows.length > 0 ? allRows[0][0] : null;
+
+        res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate");
+        return res.json({ lastTicker });
+      }
+
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: SHEET_ID,
         range: `${tab}!A:D`
