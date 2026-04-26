@@ -932,8 +932,8 @@ export default function Home(){
             {buyPrice&&shares>0&&!priceLoading&&(
               <div style={{marginTop:"12px",padding:"14px 16px",background:isDark?`${T.accent}08`:`${T.accent}08`,borderRadius:"14px",border:`1px solid ${T.accent}25`}}>
                 <div style={{fontSize:"14px",color:T.text,fontWeight:"400",lineHeight:"1.6"}}>
-                  🦜 {investYear}년 당시 주가는 <strong style={{color:T.accent,fontWeight:"700"}}>{displayPrice(buyPrice)}</strong>이었어요<br/>
-                  지금 선택한 금액으로 무려 <strong style={{color:T.accent,fontWeight:"700"}}>{shares.toLocaleString()}주</strong>나 살 수 있었어요!
+                  🦜 {investYear}년 오늘 당시 주가는 <strong style={{color:T.accent,fontWeight:"700"}}>{displayPrice(buyPrice)}</strong>이었어요<br/>
+                  지금 선택한 금액으로 <strong style={{color:T.accent,fontWeight:"700"}}>{shares.toLocaleString()}주</strong>나 살 수 있었어요!
                 </div>
               </div>
             )}
@@ -1006,7 +1006,7 @@ export default function Home(){
                   {result.sharesCount>0&&(
                     <div style={{marginBottom:"20px",padding:"12px 16px",background:isDark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.02)",borderRadius:"12px",textAlign:"center"}}>
                       <span style={{fontSize:"14px",color:T.textSub,fontWeight:"400"}}>
-                        😱 무려 <strong style={{color:result.isProfit?T.accent:"#f87171",fontWeight:"700",fontSize:"16px"}}>{result.sharesCount.toLocaleString()}주</strong>나 살 수 있었어요!
+                        😱 <strong style={{color:result.isProfit?T.accent:"#f87171",fontWeight:"700",fontSize:"16px"}}>{result.sharesCount.toLocaleString()}주</strong>나 살 수 있었어요!
                       </span>
                     </div>
                   )}
