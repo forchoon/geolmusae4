@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "kr.stockparrot.twa",
+        "sha256_cert_fingerprints": ["E4:DF:85:B2:D0:BE:40:07:C2:EB:78:1C:97:4E:49:E7:E0:69:18:4A:91:9A:AB:FD:B6:80:1B:2A:AF:D0:2C:44"]
+      }
+    }]
