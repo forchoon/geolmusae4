@@ -93,7 +93,7 @@ function getSector(yt){return SECTOR_MAP[yt]||null;}
 function getYahooTicker(t){return TICKER_MAP[t]||t;}
 function getCurrency(yt){return CURRENCY_MAP[yt]||"USD";}
 function getIpoYear(yt){return IPO_YEAR[yt]||2000;}
-function getChartData(t){return CHART_DATA[t]||CHART_DATA["SPY"];}
+function getChartData(t){return CHART_DATA[t]||null;}
 function getTodayMMDD(){const n=new Date();return `${String(n.getMonth()+1).padStart(2,"0")}/${String(n.getDate()).padStart(2,"0")}`;}
 function getSameDayOfYear(yr){const n=new Date();return `${yr}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;}
 function formatKRW(v){const a=Math.abs(v),s=v<0?"-":"";if(a>=1e8)return`${s}${(a/1e8).toFixed(1)}억원`;if(a>=1e4)return`${s}${Math.round(a/1e4)}만원`;return`${s}${Math.round(a).toLocaleString()}원`;}
@@ -146,7 +146,7 @@ const THEMES = {
   light:{bg:"#f2f7f3",bgCard:"#ffffff",bgDeep:"#eaf3ec",bgResult:"linear-gradient(145deg,#edfaef,#f0faf2)",border:"#d8eadb",borderActive:"#16a34a",text:"#141f16",textSub:"#3d5c42",textMuted:"#5a7a5e",textFaint:"#a0c0a4",accent:"#16a34a",accentDim:"#22c55e",tabBg:"#e4eee5",tabActive:"linear-gradient(135deg,#d0ead5,#bfe0c8)",tabInactive:"#5a7a5e",presetActive:"#d0ead5",presetInactive:"#f0f7f1",presetInactiveText:"#4a6a4e",inputBg:"#ffffff",dropdownBg:"#ffffff",isDark:false},
 };
 
-function StockChart({ticker,investYear,T,displayPrice,currentPrice,chartData}){
+function StockChart({ticker,investYear,T,displayPrice,currentPrice,chartData,buyPrice}){
   const [hoverIdx,setHoverIdx]=useState(null);
   const data = (chartData && chartData.length > 0) ? chartData : getChartData(ticker);
 
@@ -200,7 +200,7 @@ function StockChart({ticker,investYear,T,displayPrice,currentPrice,chartData}){
         <text x={mxLbX.toFixed(1)} y={mxLbY.toFixed(1)} textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="700">최고 {displayPrice(mx)}</text>
         <circle cx={bx.toFixed(1)} cy={by.toFixed(1)} r={5} fill="#60a5fa" stroke={T.bg} strokeWidth="2"/>
         <text x={markerLabelX} y={(by-10).toFixed(1)} textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="700">
-          {investYear}년 오늘 {displayPrice(data[bi])}
+          {investYear}년 오늘 {buyPrice ? displayPrice(buyPrice) : displayPrice(data[bi])}
         </text>
         {hoverIdx!==null&&<circle cx={hx.toFixed(1)} cy={hy.toFixed(1)} r="4" fill={lc} stroke={T.bg} strokeWidth="2"/>}
       </svg>
@@ -539,7 +539,7 @@ export default function Home(){
         setChartData(data);
       } else {
         const fallback = getChartData(selectedStock.ticker);
-        setChartData(fallback);
+        setChartData(fallback); // null이면 차트 없음 표시
       }
       setChartLoading(false);
     };
@@ -558,11 +558,9 @@ export default function Home(){
         setBuyPrice(bp);setCurrentPrice(cp);setUsdToKrw(rate);setCurrency(getCurrency(selectedStock.yahooTicker));
         if(!bp)setPriceError(`${investYear}년 거래 데이터가 없어요`);
       }catch{
-        const fb=getChartData(selectedStock.ticker);
-        const ipoYr=getIpoYear(selectedStock.yahooTicker);
-        const idx=Math.round((investYear-ipoYr)/Math.max(CURRENT_YEAR-ipoYr,1)*(fb.length-1));
-        setBuyPrice(fb[Math.max(0,Math.min(fb.length-1,idx))]);setCurrentPrice(fb[fb.length-1]);
-        setCurrency(getCurrency(selectedStock.yahooTicker));setPriceError("📦 샘플 데이터 사용 중");
+        setBuyPrice(null);setCurrentPrice(null);
+        setCurrency(getCurrency(selectedStock.yahooTicker));
+        setPriceError("⚠️ 시세 조회에 실패했어요. 잠시 후 다시 시도해주세요");
       }
       setPriceLoading(false);setRateLoading(false);
     },600);
@@ -752,8 +750,8 @@ export default function Home(){
               <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>종목 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
-            <div style={{display:"flex",gap:"4px",marginBottom:"16px",background:T.tabBg,borderRadius:"14px",padding:"4px"}}>
-              {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"11px 4px",background:activeTab===tab.id?T.tabActive:"transparent",border:`1px solid ${activeTab===tab.id?T.borderActive+"60":"transparent"}`,borderRadius:"10px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.tabInactive,fontSize:"13px",fontWeight:activeTab===tab.id?"700":"400",transition:"all 0.2s"}}>{tab.label}</button>)}
+            <div style={{display:"flex",gap:"0px",marginBottom:"16px",borderBottom:`2px solid ${T.border}`}}>
+              {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"10px 4px",background:"transparent",border:"none",borderBottom:`2px solid ${activeTab===tab.id?T.accent:"transparent"}`,marginBottom:"-2px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.textMuted,fontSize:"13px",fontWeight:activeTab===tab.id?"700":"400",transition:"all 0.2s"}}>{tab.label}</button>)}
             </div>
             <div style={{marginBottom:"14px",position:"relative"}}>
               <div style={{position:"relative"}}>
@@ -838,7 +836,7 @@ export default function Home(){
                   <div style={{padding:"40px 20px",textAlign:"center"}}>
                     <div style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>📊 실시간 차트 로딩 중...</div>
                   </div>
-                ) : (
+                ) : chartData && chartData.length > 0 ? (
                   <StockChart
                     ticker={selectedStock.ticker}
                     investYear={investYear}
@@ -846,7 +844,13 @@ export default function Home(){
                     displayPrice={displayPrice}
                     currentPrice={currentPrice}
                     chartData={chartData}
+                    buyPrice={buyPrice}
                   />
+                ) : (
+                  <div style={{padding:"32px 20px",textAlign:"center"}}>
+                    <div style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>📊 이 종목은 차트 데이터를 불러올 수 없어요</div>
+                    <div style={{fontSize:"12px",color:T.textMuted,marginTop:"4px",fontWeight:"400"}}>매수가 · 현재가 · 수익률은 정확하게 계산됩니다 ✅</div>
+                  </div>
                 )}
               </div>
 
