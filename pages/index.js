@@ -654,7 +654,7 @@ export default function Home(){
     setTimeout(()=>{document.getElementById("result-section")?.scrollIntoView({behavior:"smooth",block:"start"});},100);
   };
 
-  const amountOptions=["100","500","1000","3000","5000","10000"];
+  const amountOptions=["1","10","100","500","1000","3000","5000","10000"];
   const currentPresets=activeTab==="us"?US_PRESETS:activeTab==="kr"?KR_PRESETS:activeTab==="coin"?COIN_PRESETS:INDEX_PRESETS;
   const sec={marginBottom:"52px",paddingTop:"16px"};
   const snStyle={fontSize:"12px",fontWeight:"500",color:T.textMuted,letterSpacing:"1px",flexShrink:0};
@@ -914,7 +914,16 @@ export default function Home(){
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
             <div style={{display:"flex",gap:"7px",flexWrap:"wrap",marginBottom:"12px"}}>
-              {amountOptions.map(a=><button key={a} onClick={()=>setInvestAmount(a)} style={{padding:"8px 12px",background:investAmount===a?T.presetActive:T.presetInactive,border:`1px solid ${investAmount===a?T.borderActive:T.border}`,borderRadius:"8px",cursor:"pointer",color:investAmount===a?T.accent:T.presetInactiveText,fontSize:"13px",fontWeight:"400",transition:"all 0.15s"}}>{parseInt(a)>=10000?`${parseInt(a)/10000}억원`:parseInt(a)>=1000?`${parseInt(a)/1000}천만원`:parseInt(a)>=100?`${parseInt(a)}만원`:`${parseInt(a)*10}만원`}</button>)}
+              {amountOptions.map(a=>{
+                const n=parseInt(a);
+                let label;
+                if(n>=10000) label=`${n/10000}억원`;
+                else if(n>=1000) label=`${n/1000}천만원`;
+                else if(n>=100) label=`${n}만원`;
+                else if(n>=10) label=`${n}만원`;
+                else label=`${n}만원`;
+                return <button key={a} onClick={()=>setInvestAmount(a)} style={{padding:"8px 12px",background:investAmount===a?T.presetActive:T.presetInactive,border:`1px solid ${investAmount===a?T.borderActive:T.border}`,borderRadius:"8px",cursor:"pointer",color:investAmount===a?T.accent:T.presetInactiveText,fontSize:"13px",fontWeight:"400",transition:"all 0.15s"}}>{label}</button>;
+              })}
             </div>
             <div style={{position:"relative"}}>
               <input type="number" value={investAmount} onChange={e=>setInvestAmount(e.target.value)} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:"10px",padding:"13px 60px 13px 16px",color:T.text,fontSize:"16px",fontWeight:"400",outline:"none",textAlign:"right"}} placeholder="직접 입력"/>
