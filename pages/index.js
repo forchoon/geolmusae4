@@ -423,12 +423,12 @@ function RankingSection({activeTab, T, isDark, onLiveFeed}){
           {/* 랭킹 리스트 - 플랫 스타일 */}
           <div style={{marginBottom:"16px"}}>
             {ranking.slice(0,5).map((item,idx)=>(
-              <div key={idx} style={{display:"flex",alignItems:"center",gap:"12px",padding:"6px 0",borderBottom:idx<ranking.length-1?`1px solid ${T.border}40`:"none"}}>
-                <div style={{fontSize:idx<3?"18px":"15px",minWidth:"24px",textAlign:"center",fontWeight:"600",color:idx>=3?T.textMuted:medalColors[idx]}}>
+              <div key={idx} style={{display:"flex",alignItems:"center",gap:"10px",padding:"4px 0",borderBottom:idx<ranking.length-1?`1px solid ${T.border}40`:"none"}}>
+                <div style={{fontSize:idx<3?"14px":"12px",minWidth:"22px",textAlign:"center",fontWeight:"600",color:idx>=3?T.textMuted:medalColors[idx]}}>
                   {idx===0?"🥇":idx===1?"🥈":idx===2?"🥉":idx===3?"4️⃣":"5️⃣"}
                 </div>
-                <div style={{flex:1,fontSize:"14px",fontWeight:idx<3?"600":"400",color:idx<3?T.text:T.textSub}}>{item[0]}</div>
-                <div style={{fontSize:"12px",fontWeight:idx<3?"600":"400"}}>
+                <div style={{flex:1,fontSize:"12px",fontWeight:idx<3?"600":"400",color:idx<3?T.text:T.textSub}}>{item[0]}</div>
+                <div style={{fontSize:"11px",fontWeight:idx<3?"600":"400",flexShrink:0}}>
                   <span style={{color:T.accent,fontWeight:"700"}}>{item[1].toLocaleString()}마리</span>
                   <span style={{color:T.textMuted,fontWeight:"400"}}> 의 껄무새</span>
                 </div>
