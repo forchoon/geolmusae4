@@ -68,8 +68,20 @@ export default async function handler(req, res) {
         const lastTicker = allRows.length > 0 ? allRows[0][0] : null;
         const lastTimestamp = allRows.length > 0 ? allRows[0][1] : null;
 
+        // 최근 5개 고유 종목 추출
+        const recentFeed = [];
+        const seen = new Set();
+        for (const row of allRows) {
+          if (!row[0]) continue;
+          if (!seen.has(row[0])) {
+            seen.add(row[0]);
+            recentFeed.push({ ticker: row[0], timestamp: row[1] });
+          }
+          if (recentFeed.length >= 5) break;
+        }
+
         res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate");
-        return res.json({ lastTicker, lastTimestamp });
+        return res.json({ lastTicker, lastTimestamp, recentFeed });
       }
 
       const response = await sheets.spreadsheets.values.get({

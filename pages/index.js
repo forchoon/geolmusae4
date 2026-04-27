@@ -423,7 +423,7 @@ function RankingSection({activeTab, T, isDark, onLiveFeed}){
           {/* 랭킹 리스트 - 플랫 스타일 */}
           <div style={{marginBottom:"16px"}}>
             {ranking.slice(0,5).map((item,idx)=>(
-              <div key={idx} style={{display:"flex",alignItems:"center",gap:"12px",padding:"10px 0",borderBottom:idx<ranking.length-1?`1px solid ${T.border}40`:"none"}}>
+              <div key={idx} style={{display:"flex",alignItems:"center",gap:"12px",padding:"6px 0",borderBottom:idx<ranking.length-1?`1px solid ${T.border}40`:"none"}}>
                 <div style={{fontSize:idx<3?"18px":"15px",minWidth:"24px",textAlign:"center",fontWeight:"600",color:idx>=3?T.textMuted:medalColors[idx]}}>
                   {idx===0?"🥇":idx===1?"🥈":idx===2?"🥉":idx===3?"4️⃣":"5️⃣"}
                 </div>
@@ -476,6 +476,18 @@ export default function Home(){
   const [liveFeedTime,setLiveFeedTime]=useState("");
   const [liveFeedIdx,setLiveFeedIdx]=useState(0);
   const [liveFeedVisible,setLiveFeedVisible]=useState(true);
+  const [recentFeed,setRecentFeed]=useState([]);
+
+  const FEED_TEMPLATES = [
+    (t) => `🦜 방금 누군가 '${t}' 껄무새 중`,
+    (t) => `😭 '${t}' 후회 중인 껄무새 발견`,
+    (t) => `💸 '${t}' 그때 살 껄...`,
+    (t) => `🔥 '${t}' 껄무새 발생`,
+    (t) => `😤 '${t}' 왜 안 샀지...`,
+    (t) => `🤦 '${t}' 살 껄 그랬어`,
+    (t) => `📈 '${t}' 지금이라도 살까...`,
+    (t) => `😱 '${t}' 수익률 보고 충격`,
+  ];
 
   const getTimeAgo = (timestamp) => {
     if (!timestamp) return "";
@@ -487,16 +499,16 @@ export default function Home(){
   };
 
   useEffect(()=>{
-    if(!liveFeedMsg) return;
+    if(!recentFeed.length) return;
     const interval = setInterval(()=>{
       setLiveFeedVisible(false);
       setTimeout(()=>{
-        setLiveFeedIdx(i=>(i+1)%3);
+        setLiveFeedIdx(i=>(i+1)%recentFeed.length);
         setLiveFeedVisible(true);
       }, 400);
     }, 5000);
     return ()=>clearInterval(interval);
-  },[liveFeedMsg]);
+  },[recentFeed]);
 
   // 전체 탭 실시간 피드
   useEffect(()=>{
@@ -506,6 +518,7 @@ export default function Home(){
         const data = await res.json();
         if (data.lastTicker) setLiveFeedMsg(data.lastTicker);
         if (data.lastTimestamp) setLiveFeedTime(getTimeAgo(data.lastTimestamp));
+        if (data.recentFeed) setRecentFeed(data.recentFeed);
       } catch(e) {}
     };
     fetchLiveFeed();
@@ -649,7 +662,11 @@ export default function Home(){
     const investInUnit=isUSD?investKRW/usdToKrw:investKRW;
     const sharesCount=Math.floor(investInUnit/buyPrice);
     setResult({buyPrice,currentPrice,investKRW,currentValueKRW:curVal,profitKRW,returnPct,cagr,years:Math.floor(exactYears),isProfit:profitKRW>=0,buyDateStr:getSameDayOfYear(investYear),sharesCount});
-    setCompareStock(null);setCompareResult(null);
+
+    // 랜덤 비교 종목 자동 선택
+    const comparePool = [...US_PRESETS,...KR_PRESETS,...INDEX_PRESETS.slice(0,2),...COIN_PRESETS.slice(0,2)].filter(s=>s.ticker!==selectedStock.ticker);
+    const randomCompare = comparePool[Math.floor(Math.random()*comparePool.length)];
+    setCompareStock(randomCompare);
     setAnimKey(k=>k+1);setLoading(false);
     setTimeout(()=>{document.getElementById("result-section")?.scrollIntoView({behavior:"smooth",block:"start"});},100);
   };
@@ -734,11 +751,15 @@ export default function Home(){
               opacity:liveFeedVisible?1:0,
               transition:"opacity 0.4s ease"
             }}>
-              {liveFeedMsg ? [
-                <span key={0}>🦜 방금 누군가 <strong style={{color:T.text,fontWeight:"600"}}>'{liveFeedMsg}'</strong> 껄무새 중{liveFeedTime&&<span style={{color:T.textMuted,fontWeight:"400"}}> · {liveFeedTime}</span>}</span>,
-                <span key={1}><strong style={{color:T.text,fontWeight:"600"}}>{liveFeedMsg}</strong> 껄무새 발생 🦜💦{liveFeedTime&&<span style={{color:T.textMuted,fontWeight:"400"}}> · {liveFeedTime}</span>}</span>,
-                <span key={2}>😭 <strong style={{color:T.text,fontWeight:"600"}}>{liveFeedMsg}</strong> · 후회 중{liveFeedTime&&<span style={{color:T.textMuted,fontWeight:"400"}}> · {liveFeedTime}</span>}</span>,
-              ][liveFeedIdx] : <span>🦜 껄무새들의 실시간 후회가 모이는 곳</span>}
+              {recentFeed.length > 0 ? (()=>{
+                const item = recentFeed[liveFeedIdx % recentFeed.length];
+                const template = FEED_TEMPLATES[(liveFeedIdx + recentFeed.indexOf(item)) % FEED_TEMPLATES.length];
+                const timeAgo = getTimeAgo(item.timestamp);
+                return <span>
+                  <strong style={{color:T.text,fontWeight:"600"}}>{template(item.ticker)}</strong>
+                  {timeAgo && <span style={{color:T.textMuted,fontWeight:"400"}}> · {timeAgo}</span>}
+                </span>;
+              })() : <span>🦜 껄무새들의 실시간 후회가 모이는 곳</span>}
             </span>
           </div>
         </div>
@@ -750,7 +771,7 @@ export default function Home(){
               <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>종목 선택</span>
               <div style={{flex:1,height:"1px",background:T.border}}/>
             </div>
-            <div style={{display:"flex",gap:"0px",marginBottom:"16px",borderBottom:`2px solid ${T.border}`}}>
+            <div style={{display:"flex",gap:"0px",marginBottom:"16px",borderBottom:`2px solid ${T.border}`,margin:"0 -16px 16px",padding:"0 16px"}}>
               {TABS.map(tab=><button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flex:1,padding:"10px 4px",background:"transparent",border:"none",borderBottom:`2px solid ${activeTab===tab.id?T.accent:"transparent"}`,marginBottom:"-2px",cursor:"pointer",color:activeTab===tab.id?T.accent:T.textMuted,fontSize:"13px",fontWeight:activeTab===tab.id?"700":"400",transition:"all 0.2s"}}>{tab.label}</button>)}
             </div>
             <div style={{marginBottom:"14px",position:"relative"}}>
@@ -766,7 +787,7 @@ export default function Home(){
                 </div>
               </>}
             </div>
-            <div style={{fontSize:"11px",color:T.accent,letterSpacing:"2px",marginBottom:"10px",fontWeight:"400"}}>{activeTab==="index"?"대표 지수 · ETF":activeTab==="coin"?"인기 코인":"인기 종목"}</div>
+            <div style={{fontSize:"10px",color:T.textMuted,letterSpacing:"1px",marginBottom:"10px",fontWeight:"400"}}>{activeTab==="index"?"대표 지수 · ETF":activeTab==="coin"?"인기 코인":"인기 종목"}</div>
             <div style={{display:"flex",gap:"7px",flexWrap:"wrap",marginBottom:"16px"}}>
               {currentPresets.map(s=><button key={s.ticker} onClick={()=>handleSelectPreset(s)} style={{padding:"6px 10px",background:selectedStock.ticker===s.ticker?T.presetActive:T.presetInactive,border:`1px solid ${selectedStock.ticker===s.ticker?T.borderActive:T.border}`,borderRadius:"8px",cursor:"pointer",color:selectedStock.ticker===s.ticker?T.accent:T.presetInactiveText,fontSize:"12px",fontWeight:"400",transition:"all 0.15s"}}>{s.emoji?`${s.emoji} `:""}{s.name}</button>)}
             </div>
@@ -778,12 +799,15 @@ export default function Home(){
                   <div style={{color:T.textSub,fontSize:"13px",fontWeight:"500",marginTop:"2px"}}>{priceLoading?"조회 중…":currentPrice?displayPrice(currentPrice):"-"}</div>
                 </div>
                 {isUSD&&(
-                  <div onClick={()=>setShowKRW(v=>!v)} style={{display:"flex",alignItems:"center",gap:"4px",cursor:"pointer",userSelect:"none",flexShrink:0}}>
-                    <span style={{fontSize:"11px",color:!showKRW?T.accent:T.textMuted,fontWeight:!showKRW?"600":"400"}}>USD</span>
-                    <div style={{width:"36px",height:"20px",borderRadius:"10px",background:showKRW?T.accent:T.border,position:"relative",transition:"background 0.2s",flexShrink:0}}>
-                      <div style={{position:"absolute",top:"2px",left:showKRW?"18px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
+                  <div style={{display:"flex",alignItems:"center",gap:"6px",flexShrink:0}}>
+                    <span style={{fontSize:"11px",color:T.textMuted,fontWeight:"400"}}>{rateLoading?"...":usdToKrw.toLocaleString()+"원"}</span>
+                    <div onClick={()=>setShowKRW(v=>!v)} style={{display:"flex",alignItems:"center",gap:"4px",cursor:"pointer",userSelect:"none"}}>
+                      <span style={{fontSize:"11px",color:!showKRW?T.accent:T.textMuted,fontWeight:!showKRW?"600":"400"}}>USD</span>
+                      <div style={{width:"36px",height:"20px",borderRadius:"10px",background:showKRW?T.accent:T.border,position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                        <div style={{position:"absolute",top:"2px",left:showKRW?"18px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
+                      </div>
+                      <span style={{fontSize:"11px",color:showKRW?T.accent:T.textMuted,fontWeight:showKRW?"600":"400"}}>KRW</span>
                     </div>
-                    <span style={{fontSize:"11px",color:showKRW?T.accent:T.textMuted,fontWeight:showKRW?"600":"400"}}>KRW</span>
                   </div>
                 )}
               </div>
@@ -1111,6 +1135,7 @@ export default function Home(){
         input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#4ade80;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,222,128,0.4);}
         input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#4ade80;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,222,128,0.4);}
         @keyframes liveRing{0%{transform:scale(1);opacity:0.8}100%{transform:scale(2.8);opacity:0}}
+        html, body {background: ${isDark ? '#06060f' : '#f2f7f3'} !important; margin:0; padding:0;}
       `}</style>
     </>
   );
