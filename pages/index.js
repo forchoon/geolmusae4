@@ -776,7 +776,7 @@ export default function Home(){
             </div>
             <div style={{marginBottom:"14px",position:"relative"}}>
               <div style={{position:"relative"}}>
-                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"🇰🇷 영어로 검색하세요 (예: samsung, kakao)":activeTab==="coin"?"₿ 영어로 검색하세요 (예: bitcoin, ETH)":activeTab==="index"?"📊 티커로 검색하세요 (예: SPY, QQQ, KOSPI)":"🇺🇸 영어로 검색하세요 (예: apple, NVDA)"} style={{width:"100%",background:T.inputBg,border:`1.5px solid ${T.borderActive}60`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"14px",fontWeight:"400",outline:"none",boxShadow:`0 0 0 3px ${T.accent}10`}}/>
+                <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder={activeTab==="kr"?"🇰🇷 한글/영어로 검색 (예: 삼성전자, SK하이닉스)":activeTab==="coin"?"₿ 영어로 검색하세요 (예: bitcoin, ETH)":activeTab==="index"?"📊 티커로 검색하세요 (예: SPY, QQQ, KOSPI)":"🇺🇸 영어로 검색하세요 (예: apple, NVDA)"} style={{width:"100%",background:T.inputBg,border:`1.5px solid ${T.borderActive}60`,borderRadius:"12px",padding:"12px 46px 12px 16px",color:T.text,fontSize:"14px",fontWeight:"400",outline:"none",boxShadow:`0 0 0 3px ${T.accent}10`}}/>
                 <span style={{position:"absolute",right:"14px",top:"50%",transform:"translateY(-50%)",fontSize:"16px"}}>{searching?"⏳":"🔎"}</span>
               </div>
               {showDropdown&&<>
