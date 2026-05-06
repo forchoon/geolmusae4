@@ -417,7 +417,7 @@ function RankingSection({activeTab, T, isDark, onLiveFeed}){
     <div style={{marginBottom:"28px",marginTop:"-16px"}}>
       {/* 헤더 한줄 */}
       <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"14px"}}>
-        <span style={{fontSize:"14px",fontWeight:"600",color:T.text}}>🦜 껄무새 TOP 5</span>
+        <span style={{fontSize:"14px",fontWeight:"600",color:T.text}}>🦜 껄무새 TOP 3</span>
         <div style={{display:"flex",alignItems:"center",gap:"4px"}}>
           <span style={{width:"6px",height:"6px",background:T.accent,borderRadius:"50%",display:"inline-block",animation:"pulse 2s infinite"}}/>
           <span style={{fontSize:"11px",fontWeight:"500",color:T.accent}}>Live</span>
@@ -438,7 +438,7 @@ function RankingSection({activeTab, T, isDark, onLiveFeed}){
         <>
           {/* 랭킹 리스트 - 플랫 스타일 */}
           <div style={{marginBottom:"16px"}}>
-            {ranking.slice(0,5).map((item,idx)=>(
+            {ranking.slice(0,3).map((item,idx)=>(
               <div key={idx} style={{display:"flex",alignItems:"center",gap:"10px",padding:"4px 0",borderBottom:idx<ranking.length-1?`1px solid ${T.border}40`:"none"}}>
                 <div style={{fontSize:idx<3?"14px":"12px",minWidth:"22px",textAlign:"center",fontWeight:"600",color:idx>=3?T.textMuted:medalColors[idx]}}>
                   {idx===0?"🥇":idx===1?"🥈":idx===2?"🥉":idx===3?"4️⃣":"5️⃣"}
