@@ -104,10 +104,10 @@ function formatMultiple(currentValue, principal) {
   const multiple = currentValue / principal;
 
   if (multiple >= 1) {
-    return `${multiple >= 10 ? multiple.toFixed(1) : multiple.toFixed(2)}배 됐어요`;
+    return `${multiple >= 10 ? multiple.toFixed(1) : multiple.toFixed(2)}배 증가`;
   }
 
-  return `원금의 ${Math.round(multiple * 100)}%만 남았어요`;
+  return `원금의 ${Math.round(multiple * 100)}% 수준`;
 }
 async function fetchChartDataAPI(yahooTicker) {
   try {
@@ -237,7 +237,7 @@ function CountUp({target,duration=1400}){
 }
 
 function ShareCard({result,stockName,investYear,investAmount,onClose,isDark,T}){
-  const {isProfit,returnPct,currentValueKRW,cagr}=result;
+const {isProfit,returnPct,currentValueKRW,cagr,multipleText}=result;
   const [cardStyle,setCardStyle]=useState(null);
   const [saving,setSaving]=useState(false);
   const mc=isProfit?"#4ade80":"#f87171";
@@ -290,6 +290,12 @@ function ShareCard({result,stockName,investYear,investAmount,onClose,isDark,T}){
         </div>
         <div style={{borderTop:"2px dashed #1a1a1a",paddingTop:"12px",marginTop:"12px"}}>
           <div style={{fontSize:"32px",fontWeight:"900",color:isProfit?"#16a34a":"#dc2626"}}>{isProfit?"+":""}{returnPct}%</div>
+{multipleText&&(
+  <div style={{fontSize:"14px",fontWeight:"800",color:isProfit?"#16a34a":"#dc2626",marginTop:"4px"}}>
+    {multipleText}
+  </div>
+)}
+<div style={{fontSize:"11px",opacity:0.5,marginTop:"4px"}}>연평균 {isProfit?"+":""}{cagr}% · {emoji}</div>
           <div style={{fontSize:"11px",opacity:0.5,marginTop:"4px"}}>연평균 {isProfit?"+":""}{cagr}% · {emoji}</div>
         </div>
         <div style={{marginTop:"16px",fontSize:"10px",opacity:0.4,letterSpacing:"2px"}}>그때 살 껄 그랬어요 🦜</div>
@@ -359,7 +365,7 @@ function ShareCard({result,stockName,investYear,investAmount,onClose,isDark,T}){
             <button onClick={handleSaveImage} disabled={saving} style={{padding:"12px 20px",background:"linear-gradient(135deg,#22c55e,#16a34a)",border:"none",borderRadius:"12px",cursor:saving?"not-allowed":"pointer",color:"#fff",fontSize:"13px",fontWeight:"600"}}>
               {saving?"⏳ 저장 중…":"📥 이미지 저장"}
             </button>
-            <button onClick={()=>{const txt=`${stockName} ${investYear}년에 샀더라면 ${isProfit?"+":""}${returnPct}%! ${emoji} | stockparrot.kr`;navigator.clipboard?.writeText(txt).then(()=>alert("복사됐어요! 🦜"));}} style={{padding:"12px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"12px",cursor:"pointer",color:"#fff",fontSize:"13px"}}>🔗 복사</button>
+            <button onClick={()=>{const txt=`${stockName} ${investYear}년에 샀더라면 ${multipleText?`${multipleText} · `:""}${isProfit?"+":""}${returnPct}%! ${emoji} | stockparrot.kr`;navigator.clipboard?.writeText(txt).then(()=>alert("복사됐어요! 🦜"));}} style={{padding:"12px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"12px",cursor:"pointer",color:"#fff",fontSize:"13px"}}>🔗 복사</button>
           </div>
           <button onClick={onClose} style={{background:"none",border:"none",color:"rgba(255,255,255,0.4)",fontSize:"13px",cursor:"pointer",padding:"6px"}}>닫기</button>
         </>
@@ -623,7 +629,7 @@ export default function Home(){
         const returnPct=((pr-1)*100).toFixed(1);
         const exactYears=(new Date()-new Date(dateStr))/(1000*60*60*24*365.25);
         const cagr=((Math.pow(pr,1/Math.max(exactYears,0.1))-1)*100).toFixed(1);
-        setCompareResult({buyPrice:bp,currentPrice:cp,investKRW,currentValueKRW:curVal,profitKRW:curVal-investKRW,returnPct,cagr,isProfit:curVal>=investKRW});
+        setCompareResult({buyPrice:bp,currentPrice:cp,investKRW,currentValueKRW:curVal,profitKRW:curVal-investKRW,returnPct,cagr,multipleText:formatMultiple(curVal,investKRW),isProfit:curVal>=investKRW});
       }catch{
         const fb=getChartData(compareStock.ticker);
         const ipoYr=getIpoYear(yt);
@@ -635,7 +641,7 @@ export default function Home(){
         const returnPct=((pr-1)*100).toFixed(1);
         const exactYears=(new Date()-new Date(getSameDayOfYear(investYear)))/(1000*60*60*24*365.25);
         const cagr=((Math.pow(pr,1/Math.max(exactYears,0.1))-1)*100).toFixed(1);
-        setCompareResult({buyPrice:bp,currentPrice:cp,investKRW,currentValueKRW:curVal,profitKRW:curVal-investKRW,returnPct,cagr,isProfit:curVal>=investKRW});
+        setCompareResult({buyPrice:bp,currentPrice:cp,investKRW,currentValueKRW:curVal,profitKRW:curVal-investKRW,returnPct,cagr,multipleText:formatMultiple(curVal,investKRW),isProfit:curVal>=investKRW});
       }
     };
     calcCompare();
@@ -854,7 +860,20 @@ export default function Home(){
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                       <div style={{fontSize:"24px",fontWeight:"800",color:isUp?T.accent:"#f87171",letterSpacing:"-1px"}}>
                         {priceLoading ? <span style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>📡 조회 중…</span>
-                          : onePct ? <>{isUp?"+":""}{onePct}% {emoji}</> : <span style={{fontSize:"13px",color:T.textMuted}}>-</span>}
+                         : onePct ? (
+  <div>
+    <div>{isUp?"+":""}{onePct}% {emoji}</div>
+    <div style={{
+      fontSize:"13px",
+      fontWeight:"700",
+      color:isUp?T.accent:"#f87171",
+      marginTop:"4px",
+      letterSpacing:"-0.2px"
+    }}>
+      {formatMultiple(currentPrice, buyPrice)}
+    </div>
+  </div>
+) : <span style={{fontSize:"13px",color:T.textMuted}}>-</span>}
                       </div>
                       <div style={{textAlign:"right"}}>
                         <div style={{fontSize:"11px",color:T.textMuted,fontWeight:"400"}}>1주 현재가</div>
@@ -1097,8 +1116,13 @@ export default function Home(){
                             <div style={{flex:1,padding:"14px 10px",background:iWin?(result.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):"transparent",border:`2px solid ${iWin?(result.isProfit?T.accent:"#f87171"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
                               <div style={{fontSize:"14px",marginBottom:"4px",opacity:iWin?1:0}}>👑</div>
                               <div style={{fontSize:"12px",fontWeight:"600",color:T.text,marginBottom:"6px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
-                              <div style={{fontSize:"20px",fontWeight:"800",color:myPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{myPct>=0?"+":""}{result.returnPct}%</div>
-                              <div style={{fontSize:"12px",color:T.textSub,fontWeight:"500"}}>{formatKRW(Math.round(result.currentValueKRW))}</div>
+                     <div style={{fontSize:"20px",fontWeight:"800",color:myPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{myPct>=0?"+":""}{result.returnPct}%</div>
+{result.multipleText&&(
+  <div style={{fontSize:"11px",fontWeight:"700",color:myPct>=0?T.accent:"#f87171",marginBottom:"4px"}}>
+    {result.multipleText}
+  </div>
+)}
+<div style={{fontSize:"12px",color:T.textSub,fontWeight:"500"}}>{formatKRW(Math.round(result.currentValueKRW))}</div>
                             </div>
 
                             {/* VS */}
@@ -1110,8 +1134,13 @@ export default function Home(){
                             <div style={{flex:1,padding:"14px 10px",background:!iWin?(compareResult.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):"transparent",border:`2px solid ${!iWin?(compareResult.isProfit?T.accent:"#f87171"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
                               <div style={{fontSize:"14px",marginBottom:"4px",opacity:!iWin?1:0}}>👑</div>
                               <div style={{fontSize:"12px",fontWeight:"600",color:T.text,marginBottom:"6px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{compareStock.name}</div>
-                              <div style={{fontSize:"20px",fontWeight:"800",color:cpPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{cpPct>=0?"+":""}{compareResult.returnPct}%</div>
-                              <div style={{fontSize:"12px",color:T.textSub,fontWeight:"500"}}>{formatKRW(Math.round(compareResult.currentValueKRW))}</div>
+                           <div style={{fontSize:"20px",fontWeight:"800",color:cpPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{cpPct>=0?"+":""}{compareResult.returnPct}%</div>
+{compareResult.multipleText&&(
+  <div style={{fontSize:"11px",fontWeight:"700",color:cpPct>=0?T.accent:"#f87171",marginBottom:"4px"}}>
+    {compareResult.multipleText}
+  </div>
+)}
+<div style={{fontSize:"12px",color:T.textSub,fontWeight:"500"}}>{formatKRW(Math.round(compareResult.currentValueKRW))}</div>
                             </div>
                           </div>
                           <div style={{marginTop:"10px",textAlign:"center",fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>
