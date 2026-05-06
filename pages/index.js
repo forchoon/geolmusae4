@@ -98,7 +98,17 @@ function getTodayMMDD(){const n=new Date();return `${String(n.getMonth()+1).padS
 function getSameDayOfYear(yr){const n=new Date();return `${yr}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;}
 function formatKRW(v){const a=Math.abs(v),s=v<0?"-":"";if(a>=1e8)return`${s}${(a/1e8).toFixed(1)}억원`;if(a>=1e4)return`${s}${Math.round(a/1e4)}만원`;return`${s}${Math.round(a).toLocaleString()}원`;}
 function formatUSD(v){return`$${v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;}
+function formatMultiple(currentValue, principal) {
+  if (!principal || principal <= 0 || !currentValue) return null;
 
+  const multiple = currentValue / principal;
+
+  if (multiple >= 1) {
+    return `${multiple >= 10 ? multiple.toFixed(1) : multiple.toFixed(2)}배 됐어요`;
+  }
+
+  return `원금의 ${Math.round(multiple * 100)}%만 남았어요`;
+}
 async function fetchChartDataAPI(yahooTicker) {
   try {
     const res = await fetch(`/api/chart?ticker=${encodeURIComponent(yahooTicker)}`);
@@ -640,6 +650,7 @@ export default function Home(){
     const curVal=isUSD?(investKRW/usdToKrw)*pr*usdToKrw:investKRW*pr;
     const profitKRW=curVal-investKRW,returnPct=((pr-1)*100).toFixed(1);
     const isProfit = profitKRW >= 0;
+    const multipleText = formatMultiple(curVal, investKRW);
 
     if (isProfit) {
       if (window.confetti) {
@@ -661,7 +672,7 @@ export default function Home(){
     const cagr=((Math.pow(pr,1/Math.max(exactYears,0.1))-1)*100).toFixed(1);
     const investInUnit=isUSD?investKRW/usdToKrw:investKRW;
     const sharesCount=Math.floor(investInUnit/buyPrice);
-    setResult({buyPrice,currentPrice,investKRW,currentValueKRW:curVal,profitKRW,returnPct,cagr,years:Math.floor(exactYears),isProfit:profitKRW>=0,buyDateStr:getSameDayOfYear(investYear),sharesCount});
+    setResult({buyPrice,currentPrice,investKRW,currentValueKRW:curVal,profitKRW,returnPct,cagr,multipleText,years:Math.floor(exactYears),isProfit:profitKRW>=0,buyDateStr:getSameDayOfYear(investYear),sharesCount});
 
     // 랜덤 비교 종목 자동 선택
     const comparePool = [...US_PRESETS,...KR_PRESETS,...INDEX_PRESETS.slice(0,2),...COIN_PRESETS.slice(0,2)].filter(s=>s.ticker!==selectedStock.ticker);
@@ -997,6 +1008,17 @@ export default function Home(){
                   <div style={{textAlign:"center",marginBottom:"20px"}}>
                     <div style={{fontSize:"40px",fontWeight:"700",color:result.isProfit?T.accent:"#f87171",letterSpacing:"-2px",lineHeight:1,marginBottom:"10px"}}>
                       {result.isProfit?"+":""}{result.returnPct}%
+{result.multipleText&&(
+  <div style={{
+    fontSize:"18px",
+    fontWeight:"800",
+    color:result.isProfit?T.accent:"#f87171",
+    marginBottom:"12px",
+    letterSpacing:"-0.3px"
+  }}>
+    {result.multipleText}
+  </div>
+)}
                     </div>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"12px",marginBottom:"10px"}}>
                       <div style={{textAlign:"center"}}>
