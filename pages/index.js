@@ -858,7 +858,16 @@ export default function Home(){
                       {investYear}년 오늘, <strong style={{color:T.text,fontWeight:"600"}}>{selectedStock.name}</strong>{buyPrice&&!priceLoading?` 1주(${displayPrice(buyPrice)})를 샀다면?`:""}
                     </div>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                      <div style={{fontSize:"24px",fontWeight:"800",color:isUp?T.accent:"#f87171",letterSpacing:"-1px"}}>
+<div style={{
+  fontSize:"24px",
+  fontWeight:"800",
+  color:isUp?T.accent:"#f87171",
+  letterSpacing:"-1px",
+  minHeight:"56px",
+  display:"flex",
+  flexDirection:"column",
+  justifyContent:"center"
+}}>
                         {priceLoading ? <span style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>📡 조회 중…</span>
                          : onePct ? (
   <div>
