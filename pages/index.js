@@ -296,7 +296,7 @@ const {isProfit,returnPct,currentValueKRW,cagr,multipleText}=result;
   </div>
 )}
 <div style={{fontSize:"11px",opacity:0.5,marginTop:"4px"}}>연평균 {isProfit?"+":""}{cagr}% · {emoji}</div>
-          <div style={{fontSize:"11px",opacity:0.5,marginTop:"4px"}}>연평균 {isProfit?"+":""}{cagr}% · {emoji}</div>
+         
         </div>
         <div style={{marginTop:"16px",fontSize:"10px",opacity:0.4,letterSpacing:"2px"}}>그때 살 껄 그랬어요 🦜</div>
       </div>
