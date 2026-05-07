@@ -577,10 +577,13 @@ export default function Home(){
 
   useEffect(()=>{
     if(!selectedStock.yahooTicker)return;
-    setBuyPrice(null);setPriceError(null);
-    if(priceTimeout.current)clearTimeout(priceTimeout.current);
-    priceTimeout.current=setTimeout(async()=>{
-      setPriceLoading(true);setRateLoading(true);
+setBuyPrice(null);
+setPriceError(null);
+setPriceLoading(true);
+setRateLoading(true);
+
+if(priceTimeout.current)clearTimeout(priceTimeout.current);
+priceTimeout.current=setTimeout(async()=>{
       try{
         const dateStr=getSameDayOfYear(investYear);
         const[bp,cp,rate]=await Promise.all([fetchYahooPrice(selectedStock.yahooTicker,dateStr),fetchCurrentPrice(selectedStock.yahooTicker),fetchUsdToKrw()]);
