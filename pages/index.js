@@ -742,13 +742,21 @@ priceTimeout.current=setTimeout(async()=>{
 
         {showShareCard&&result&&<ShareCard result={result} stockName={selectedStock.name} investYear={investYear} investAmount={investAmount} onClose={()=>setShowShareCard(false)} isDark={isDark} T={T}/>}
 
-        <div style={{padding:"36px 20px 16px",textAlign:"center",position:"relative"}}>
+        <div style={{padding:"32px 20px 14px",textAlign:"center",position:"relative"}}>
           <button onClick={()=>setIsDark(d=>!d)} style={{position:"absolute",top:"18px",right:"18px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"20px",padding:"7px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:"6px",color:T.textSub,fontSize:"13px",fontWeight:"400",zIndex:10}}>
             <span>{isDark?"☀️":"🌙"}</span><span>{isDark?"라이트":"다크"}</span>
           </button>
-          <div style={{fontSize:"36px",marginBottom:"4px"}}>🦜</div>
-          <h1 style={{fontSize:"32px",fontWeight:"600",margin:0,letterSpacing:"-1px",color:T.accent}}>껄무새</h1>
-          <p style={{fontSize:"13px",color:T.accent,margin:"6px 0 2px",fontWeight:"500"}}>그때 살걸!!! 그때 팔걸!!! 껄껄껄 🦜</p>
+          <img
+  src="/stockparrot-logo.png"
+  alt="껄무새"
+  style={{
+    width:"220px",
+    maxWidth:"72%",
+    height:"auto",
+    display:"block",
+    margin:"0 auto"
+  }}
+/>
         </div>
 
         <div style={{maxWidth:"600px",margin:"0 auto 8px",padding:"0 16px"}}>
