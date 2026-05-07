@@ -750,7 +750,7 @@ priceTimeout.current=setTimeout(async()=>{
   src="/stockparrot-logo.png"
   alt="껄무새"
   style={{
-    width:"190px",
+    width:"160px",
     maxWidth:"72%",
     height:"auto",
     display:"block",
