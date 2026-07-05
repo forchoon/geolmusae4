@@ -5,6 +5,7 @@ const KR_STOCKS = [
   {name:"삼성전자",ticker:"005930.KS",sector:"반도체"},
   {name:"SK하이닉스",ticker:"000660.KS",sector:"반도체"},
   {name:"삼성전기",ticker:"009150.KS",sector:"전자부품"},
+  {name:"LG전자",ticker:"066570.KS",sector:"전자",aliases:["엘지전자","LG Electronics","LGE"]},
   {name:"LG이노텍",ticker:"011070.KS",sector:"전자부품"},
   {name:"DB하이텍",ticker:"000990.KS",sector:"반도체"},
   {name:"리노공업",ticker:"058470.KS",sector:"반도체"},
@@ -220,7 +221,8 @@ export default async function handler(req, res) {
     const results = KR_STOCKS.filter(stock =>
       stock.name.toLowerCase().includes(q) ||
       stock.ticker.toLowerCase().includes(q) ||
-      (stock.sector && stock.sector.toLowerCase().includes(q))
+      (stock.sector && stock.sector.toLowerCase().includes(q)) ||
+      (stock.aliases && stock.aliases.some(alias => alias.toLowerCase().includes(q)))
     ).slice(0, 8).map(stock => ({
       ticker: stock.ticker,
       name: stock.name,
