@@ -374,6 +374,39 @@ const {isProfit,returnPct,currentValueKRW,cagr,multipleText}=result;
   );
 }
 
+function IosInstallSheet({T,onClose}){
+  const handleClose=()=>{
+    try{localStorage.setItem("iosInstallDismissedAt", String(Date.now()));}catch(e){}
+    onClose();
+  };
+
+  return(
+    <div style={{position:"fixed",inset:0,zIndex:250,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 14px 14px",backdropFilter:"blur(8px)"}} onClick={handleClose}>
+      <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:"560px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"24px",padding:"20px 18px calc(20px + env(safe-area-inset-bottom))",boxShadow:"0 -12px 44px rgba(0,0,0,0.35)",animation:"sheetUp 0.28s cubic-bezier(0.16,1,0.3,1)"}}>
+        <div style={{width:"42px",height:"4px",borderRadius:"999px",background:T.border,margin:"0 auto 16px"}}/>
+        <div style={{display:"flex",gap:"13px",alignItems:"flex-start"}}>
+          <div style={{width:"44px",height:"44px",borderRadius:"14px",background:T.presetActive,border:`1px solid ${T.borderActive}55`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",flexShrink:0}}>🦜</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:"18px",fontWeight:"800",color:T.text,letterSpacing:"-0.5px",marginBottom:"6px"}}>껄무새를 폰에 앉혀두세요</div>
+            <div style={{fontSize:"13px",lineHeight:"1.65",color:T.textSub,fontWeight:"400",marginBottom:"14px"}}>
+              앱처럼 바로 열 수 있어요. Safari 하단의 <strong style={{color:T.text,fontWeight:"700"}}>공유 버튼</strong>을 누른 뒤 <strong style={{color:T.text,fontWeight:"700"}}>홈 화면에 추가</strong>를 선택하세요.
+            </div>
+            <div style={{display:"grid",gap:"7px",marginBottom:"14px"}}>
+              {["1. Safari 하단 공유 버튼 누르기","2. ‘홈 화면에 추가’ 선택","3. 추가하면 앱처럼 바로 실행"].map(t=>(
+                <div key={t} style={{fontSize:"12px",color:T.textSub,background:T.bgDeep,border:`1px solid ${T.border}`,borderRadius:"10px",padding:"8px 10px"}}>{t}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:"8px"}}>
+          <button onClick={handleClose} style={{flex:1,padding:"13px 14px",borderRadius:"13px",border:"none",background:`linear-gradient(135deg,${T.accentDim},#15803d)`,color:"#fff",fontSize:"14px",fontWeight:"700",cursor:"pointer"}}>방법 알겠어요</button>
+          <button onClick={handleClose} style={{padding:"13px 14px",borderRadius:"13px",border:`1px solid ${T.border}`,background:T.bgDeep,color:T.textMuted,fontSize:"14px",fontWeight:"600",cursor:"pointer"}}>나중에</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function RankingSection({activeTab, T, isDark, onLiveFeed}){
   const [ranking, setRanking] = useState([]);
   const [lastMsg, setLastMsg] = useState("");
@@ -493,6 +526,7 @@ export default function Home(){
   const [liveFeedIdx,setLiveFeedIdx]=useState(0);
   const [liveFeedVisible,setLiveFeedVisible]=useState(true);
   const [recentFeed,setRecentFeed]=useState([]);
+  const [showIosInstallSheet,setShowIosInstallSheet]=useState(false);
 
   const FEED_TEMPLATES = [
     (t) => `🦜 방금 누군가 '${t}' 껄무새 중`,
@@ -558,6 +592,24 @@ export default function Home(){
   };
   const shares=calcShares();
 
+  const maybeShowIosInstallSheet=()=>{
+    if(typeof window==="undefined")return;
+    const nav=window.navigator;
+    const ua=nav.userAgent||"";
+    const isIOS=/iPad|iPhone|iPod/.test(ua)||(nav.platform==="MacIntel"&&nav.maxTouchPoints>1);
+    const isStandalone=nav.standalone===true||window.matchMedia("(display-mode: standalone)").matches;
+    const isSafari=/Safari/.test(ua)&&!/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+    if(!isIOS||!isSafari||isStandalone)return;
+
+    try{
+      const dismissedAt=Number(localStorage.getItem("iosInstallDismissedAt")||0);
+      const sevenDays=7*24*60*60*1000;
+      if(dismissedAt&&Date.now()-dismissedAt<sevenDays)return;
+    }catch(e){}
+
+    setTimeout(()=>setShowIosInstallSheet(true),700);
+  };
+
   // 차트 데이터 로딩
   useEffect(() => {
     if (!selectedStock.yahooTicker) return;
@@ -577,13 +629,10 @@ export default function Home(){
 
   useEffect(()=>{
     if(!selectedStock.yahooTicker)return;
-setBuyPrice(null);
-setPriceError(null);
-setPriceLoading(true);
-setRateLoading(true);
-
-if(priceTimeout.current)clearTimeout(priceTimeout.current);
-priceTimeout.current=setTimeout(async()=>{
+    setBuyPrice(null);setPriceError(null);
+    if(priceTimeout.current)clearTimeout(priceTimeout.current);
+    priceTimeout.current=setTimeout(async()=>{
+      setPriceLoading(true);setRateLoading(true);
       try{
         const dateStr=getSameDayOfYear(investYear);
         const[bp,cp,rate]=await Promise.all([fetchYahooPrice(selectedStock.yahooTicker,dateStr),fetchCurrentPrice(selectedStock.yahooTicker),fetchUsdToKrw()]);
@@ -689,6 +738,7 @@ priceTimeout.current=setTimeout(async()=>{
     setCompareStock(randomCompare);
     setAnimKey(k=>k+1);setLoading(false);
     setTimeout(()=>{document.getElementById("result-section")?.scrollIntoView({behavior:"smooth",block:"start"});},100);
+    maybeShowIosInstallSheet();
   };
 
   const amountOptions=["1","10","100","500","1000","3000","5000","10000"];
@@ -741,8 +791,9 @@ priceTimeout.current=setTimeout(async()=>{
       <div style={{minHeight:"100vh",background:T.bg,color:T.text,overflowX:"hidden",transition:"background 0.3s,color 0.3s",fontFamily:"'Pretendard','Apple SD Gothic Neo',sans-serif"}}>
 
         {showShareCard&&result&&<ShareCard result={result} stockName={selectedStock.name} investYear={investYear} investAmount={investAmount} onClose={()=>setShowShareCard(false)} isDark={isDark} T={T}/>}
+        {showIosInstallSheet&&<IosInstallSheet T={T} onClose={()=>setShowIosInstallSheet(false)}/>}
 
-        <div style={{padding:"32px 20px 14px",textAlign:"center",position:"relative"}}>
+        <div style={{padding:"36px 20px 16px",textAlign:"center",position:"relative"}}>
           <button onClick={()=>setIsDark(d=>!d)} style={{position:"absolute",top:"18px",right:"18px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"20px",padding:"7px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:"6px",color:T.textSub,fontSize:"13px",fontWeight:"400",zIndex:10}}>
             <span>{isDark?"☀️":"🌙"}</span><span>{isDark?"라이트":"다크"}</span>
           </button>
@@ -750,8 +801,8 @@ priceTimeout.current=setTimeout(async()=>{
   src="/stockparrot-logo.png"
   alt="껄무새"
   style={{
-    width:"160px",
-    maxWidth:"72%",
+    width:"240px",
+    maxWidth:"78%",
     height:"auto",
     display:"block",
     margin:"0 auto"
@@ -864,12 +915,12 @@ priceTimeout.current=setTimeout(async()=>{
                 const onePct = buyPrice && currentPrice ? ((currentPrice/buyPrice-1)*100).toFixed(1) : null;
                 const emoji = onePct ? (parseFloat(onePct)>5000?"🦜🦜🦜":parseFloat(onePct)>1000?"🦜🦜":parseFloat(onePct)>0?"🦜":"😭") : "🦜";
                 return(
-                  <div style={{padding:"14px 16px",background:isUp?`${T.accent}08`:"rgba(239,68,68,0.05)",borderBottom:`1px solid ${T.border}`,minHeight:"68px"}}>
+                  <div style={{padding:"14px 16px",background:isUp?`${T.accent}08`:"rgba(239,68,68,0.05)",borderBottom:`1px solid ${T.border}`,minHeight:"92px"}}>
                     <div style={{fontSize:"12px",color:T.textMuted,fontWeight:"400",marginBottom:"4px"}}>
                       {investYear}년 오늘, <strong style={{color:T.text,fontWeight:"600"}}>{selectedStock.name}</strong>{buyPrice&&!priceLoading?` 1주(${displayPrice(buyPrice)})를 샀다면?`:""}
                     </div>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-<div style={{
+                      <div style={{
   fontSize:"24px",
   fontWeight:"800",
   color:isUp?T.accent:"#f87171",
@@ -880,7 +931,7 @@ priceTimeout.current=setTimeout(async()=>{
   justifyContent:"center"
 }}>
                         {priceLoading ? <span style={{fontSize:"13px",color:T.textMuted,fontWeight:"400"}}>📡 조회 중…</span>
-                         : onePct ? (
+                          : onePct ? (
   <div>
     <div>{isUp?"+":""}{onePct}% {emoji}</div>
     <div style={{
@@ -1047,7 +1098,8 @@ priceTimeout.current=setTimeout(async()=>{
                   <div style={{textAlign:"center",marginBottom:"20px"}}>
                     <div style={{fontSize:"40px",fontWeight:"700",color:result.isProfit?T.accent:"#f87171",letterSpacing:"-2px",lineHeight:1,marginBottom:"10px"}}>
                       {result.isProfit?"+":""}{result.returnPct}%
-{result.multipleText&&(
+                    </div>
+                    {result.multipleText&&(
   <div style={{
     fontSize:"18px",
     fontWeight:"800",
@@ -1058,7 +1110,6 @@ priceTimeout.current=setTimeout(async()=>{
     {result.multipleText}
   </div>
 )}
-                    </div>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"12px",marginBottom:"10px"}}>
                       <div style={{textAlign:"center"}}>
                         <div style={{fontSize:"11px",color:T.textMuted,fontWeight:"400",marginBottom:"2px"}}>투자 원금</div>
@@ -1136,7 +1187,7 @@ priceTimeout.current=setTimeout(async()=>{
                             <div style={{flex:1,padding:"14px 10px",background:iWin?(result.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):"transparent",border:`2px solid ${iWin?(result.isProfit?T.accent:"#f87171"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
                               <div style={{fontSize:"14px",marginBottom:"4px",opacity:iWin?1:0}}>👑</div>
                               <div style={{fontSize:"12px",fontWeight:"600",color:T.text,marginBottom:"6px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selectedStock.name}</div>
-                     <div style={{fontSize:"20px",fontWeight:"800",color:myPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{myPct>=0?"+":""}{result.returnPct}%</div>
+                              <div style={{fontSize:"20px",fontWeight:"800",color:myPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{myPct>=0?"+":""}{result.returnPct}%</div>
 {result.multipleText&&(
   <div style={{fontSize:"11px",fontWeight:"700",color:myPct>=0?T.accent:"#f87171",marginBottom:"4px"}}>
     {result.multipleText}
@@ -1154,7 +1205,7 @@ priceTimeout.current=setTimeout(async()=>{
                             <div style={{flex:1,padding:"14px 10px",background:!iWin?(compareResult.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):"transparent",border:`2px solid ${!iWin?(compareResult.isProfit?T.accent:"#f87171"):T.border}`,borderRadius:"14px",textAlign:"center",transition:"all 0.3s"}}>
                               <div style={{fontSize:"14px",marginBottom:"4px",opacity:!iWin?1:0}}>👑</div>
                               <div style={{fontSize:"12px",fontWeight:"600",color:T.text,marginBottom:"6px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{compareStock.name}</div>
-                           <div style={{fontSize:"20px",fontWeight:"800",color:cpPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{cpPct>=0?"+":""}{compareResult.returnPct}%</div>
+                              <div style={{fontSize:"20px",fontWeight:"800",color:cpPct>=0?T.accent:"#f87171",letterSpacing:"-1px",lineHeight:1,marginBottom:"4px"}}>{cpPct>=0?"+":""}{compareResult.returnPct}%</div>
 {compareResult.multipleText&&(
   <div style={{fontSize:"11px",fontWeight:"700",color:cpPct>=0?T.accent:"#f87171",marginBottom:"4px"}}>
     {compareResult.multipleText}
@@ -1205,6 +1256,7 @@ priceTimeout.current=setTimeout(async()=>{
         button:active{transform:scale(0.97);}
         input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#4ade80;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,222,128,0.4);}
         input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#4ade80;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,222,128,0.4);}
+        @keyframes sheetUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
         @keyframes liveRing{0%{transform:scale(1);opacity:0.8}100%{transform:scale(2.8);opacity:0}}
         html, body {background: ${isDark ? '#06060f' : '#f2f7f3'} !important; margin:0; padding:0;}
       `}</style>
