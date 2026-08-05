@@ -99,22 +99,29 @@ replaceOnce(
   '        <div style={{maxWidth:"600px",margin:"0 auto",padding:"0 16px"}}>\n          <div style={sec}>',
   [
     '        <div style={{maxWidth:"600px",margin:"0 auto 8px",padding:"0 16px"}}>',
-    '          <a href="/masters" style={{textDecoration:"none",display:"block"}}>',
-    '            <div style={{display:"flex",alignItems:"center",gap:"10px",minHeight:"46px",padding:"10px 13px",background:T.bgCard,border:"1px solid "+T.border,borderRadius:"13px"}}>',
-    '              <div style={{width:"30px",height:"30px",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",background:T.presetActive,border:"1px solid "+T.borderActive+"55",fontSize:"17px",flexShrink:0}}>👣</div>',
-    '              <div style={{flex:1,minWidth:0}}>',
-    '                <div style={{fontSize:"13px",fontWeight:"800",color:T.text,letterSpacing:"-0.2px",marginBottom:"1px"}}>거장의 발자취</div>',
-    '                <div style={{fontSize:"12px",color:T.textSub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>버핏이 애플을 공시에 올린 해, 나도 샀다면?</div>',
-    '              </div>',
-    '              <div style={{fontSize:"16px",color:T.textMuted,fontWeight:"700"}}>›</div>',
+    '          <button type="button" onClick={()=>{',
+    '            setActiveTab("us");',
+    '            setSelectedStock({ticker:"AAPL",yahooTicker:"AAPL",name:"애플"});',
+    '            setInvestYear(2016);',
+    '            setInvestAmount("100");',
+    '            setShowKRW(false);',
+    '            setResult(null);',
+    '            setSearchQuery("");',
+    '            setTimeout(()=>document.getElementById("calculator-start")?.scrollIntoView({behavior:"smooth",block:"start"}),120);',
+    '          }} style={{width:"100%",display:"flex",alignItems:"center",gap:"10px",minHeight:"46px",padding:"10px 13px",background:T.bgCard,border:"1px solid "+T.border,borderRadius:"13px",cursor:"pointer",textAlign:"left",color:T.text}}>',
+    '            <div style={{width:"30px",height:"30px",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",background:T.presetActive,border:"1px solid "+T.borderActive+"55",fontSize:"17px",flexShrink:0}}>👣</div>',
+    '            <div style={{flex:1,minWidth:0}}>',
+    '              <div style={{fontSize:"13px",fontWeight:"800",color:T.text,letterSpacing:"-0.2px",marginBottom:"1px"}}>거장의 발자취</div>',
+    '              <div style={{fontSize:"12px",color:T.textSub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>버핏이 애플을 공시에 올린 2016년으로 바로 껄해보기</div>',
     '            </div>',
-    '          </a>',
+    '            <div style={{fontSize:"16px",color:T.textMuted,fontWeight:"700"}}>›</div>',
+    '          </button>',
     '        </div>',
     '',
     '        <div id="calculator-start" style={{maxWidth:"600px",margin:"0 auto",padding:"0 16px"}}>',
     '          <div style={sec}>'
   ].join('\n'),
-  'Home masters entry patch'
+  'Home masters direct action patch'
 );
 
 replaceOnce(
