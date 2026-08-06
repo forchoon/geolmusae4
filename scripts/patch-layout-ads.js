@@ -24,11 +24,25 @@ replaceOnce(
   'Center header container'
 );
 
-replaceOnce(
-  '<img src="/stockparrot-logo.png" alt="껄무새" style={{width:"120px",maxWidth:"55%",height:"auto",display:"block",margin:"0"}}/>',
-  '<img src="/stockparrot-logo.png" alt="껄무새" style={{width:"120px",maxWidth:"55%",height:"auto",display:"block",margin:"0 auto"}}/>',
-  'Center header logo'
-);
+const centeredLogoStyle = [
+  'width:"120px",',
+  '    maxWidth:"55%",',
+  '    height:"auto",',
+  '    display:"block",',
+  '    margin:"0 auto"'
+].join('\n');
+
+if (source.includes(centeredLogoStyle)) {
+  console.log('Center header logo already applied.');
+} else {
+  const logoStylePattern = /width:"120px",\s*maxWidth:"55%",\s*height:"auto",\s*display:"block",\s*margin:"0"/;
+  if (!logoStylePattern.test(source)) {
+    console.warn('Center header logo target not found. Skipping.');
+  } else {
+    source = source.replace(logoStylePattern, centeredLogoStyle);
+    console.log('Center header logo applied.');
+  }
+}
 
 replaceOnce(
   '  const sec={marginBottom:"52px",paddingTop:"16px"};',
