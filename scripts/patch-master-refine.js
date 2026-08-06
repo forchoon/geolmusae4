@@ -5,7 +5,7 @@ const indexPath = path.join(process.cwd(), 'pages', 'index.js');
 let source = fs.readFileSync(indexPath, 'utf8');
 
 function replaceOnce(from, to, label) {
-  if (source.includes(to)) {
+  if (to && source.includes(to)) {
     console.log(`${label} already applied.`);
     return;
   }
