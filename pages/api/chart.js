@@ -4,9 +4,9 @@ export default async function handler(req, res) {
 
   try {
     const now = Math.floor(Date.now() / 1000);
-    const fifteenYearsAgo = now - (15 * 365 * 24 * 60 * 60);
+    const historyStart = Math.floor(new Date('1980-01-01T00:00:00Z').getTime() / 1000);
 
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1wk&period1=${fifteenYearsAgo}&period2=${now}`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1wk&period1=${historyStart}&period2=${now}`;
 
     const response = await fetch(url, {
       headers: {
@@ -22,27 +22,36 @@ export default async function handler(req, res) {
 
     if (quotes.length === 0) throw new Error('No data');
 
-    const currentMonth = new Date().getMonth();
+    const today = new Date();
+    const targetMonth = today.getUTCMonth();
+    const targetDay = today.getUTCDate();
     const yearMap = new Map();
 
     timestamps.forEach((ts, idx) => {
-      const date = new Date(ts * 1000);
-      const year = date.getFullYear();
-      const month = date.getMonth();
+      const price = quotes[idx];
+      if (!price) return;
 
-      if (month === currentMonth && quotes[idx]) {
-        if (!yearMap.has(year)) {
-          yearMap.set(year, parseFloat(quotes[idx].toFixed(2)));
-        }
+      const date = new Date(ts * 1000);
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth();
+      const day = date.getUTCDate();
+      const distance = Math.abs(Date.UTC(2000, month, day) - Date.UTC(2000, targetMonth, targetDay));
+      const previous = yearMap.get(year);
+
+      if (!previous || distance < previous.distance) {
+        yearMap.set(year, {
+          price: parseFloat(price.toFixed(2)),
+          distance,
+        });
       }
     });
 
-    const sortedData = Array.from(yearMap.entries())
-      .sort((a, b) => a[0] - b[0])
-      .map(([, price]) => price);
+    const sortedEntries = Array.from(yearMap.entries()).sort((a, b) => a[0] - b[0]);
+    const years = sortedEntries.map(([year]) => year);
+    const chartData = sortedEntries.map(([, item]) => item.price);
 
     res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate");
-    return res.json({ data: sortedData, years: Array.from(yearMap.keys()).sort() });
+    return res.json({ data: chartData, years });
 
   } catch (error) {
     console.error('Chart API error:', error);
