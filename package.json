@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/patch-currency.js && node scripts/patch-master-tabs.js",
+    "predev": "node scripts/patch-currency.js && node scripts/patch-master-tabs.js && node scripts/patch-master-redesign.js",
     "dev": "next dev",
-    "prebuild": "node scripts/patch-currency.js && node scripts/patch-master-tabs.js",
+    "prebuild": "node scripts/patch-currency.js && node scripts/patch-master-tabs.js && node scripts/patch-master-redesign.js",
     "build": "next build",
     "start": "next start"
   },
