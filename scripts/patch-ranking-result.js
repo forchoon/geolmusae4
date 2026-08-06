@@ -17,10 +17,16 @@ function replaceOnce(from, to, label) {
   console.log(`${label} applied.`);
 }
 
-// Replace the old pre-calculation ranking with a compact post-result discovery block.
+// Replace only the ranking component, preserving constants injected before Home.
 const rankingStart = source.indexOf('function RankingSection(');
-const homeStart = source.indexOf('export default function Home(){', rankingStart);
-if (rankingStart === -1 || homeStart === -1) {
+const rankingEndCandidates = [
+  source.indexOf('\nconst MASTER_PROFILES = {', rankingStart),
+  source.indexOf('\nconst MASTER_CASE_META = {', rankingStart),
+  source.indexOf('\nexport default function Home(){', rankingStart)
+].filter(index => index !== -1);
+const rankingEnd = rankingEndCandidates.length ? Math.min(...rankingEndCandidates) : -1;
+
+if (rankingStart === -1 || rankingEnd === -1) {
   console.warn('Ranking component target not found. Skipping.');
 } else {
   const rankingComponent = `function RankingSection({activeTab,T,isDark,onSelect}){
@@ -75,25 +81,22 @@ if (rankingStart === -1 || homeStart === -1) {
 }
 
 `;
-  source = source.slice(0, rankingStart) + rankingComponent + source.slice(homeStart);
+  source = source.slice(0, rankingStart) + rankingComponent + source.slice(rankingEnd + 1);
   console.log('Ranking component rebuilt for post-result placement.');
 }
 
-// Remove the old ranking block between stock selection and buy timing.
 replaceOnce(
   '          <RankingSection activeTab={activeTab} T={T} isDark={isDark} onLiveFeed={msg=>setLiveFeedMsg(msg)} />\n\n',
   '',
   'Remove pre-calculation ranking'
 );
 
-// Record the exact stock and selected year for future TOP 3 interactions.
 replaceOnce(
   '      body: JSON.stringify({ ticker: selectedStock.name || selectedStock.ticker, tabType: activeTab })',
   '      body: JSON.stringify({ ticker: selectedStock.yahooTicker || selectedStock.ticker, name: selectedStock.name || selectedStock.ticker, year: investYear, tabType: activeTab })',
   'Record ranking stock and year'
 );
 
-// Add a handler that restores a ranked stock/year into the direct calculator.
 const homeReturn = '  return(\n    <>\n      <Head>';
 if (source.includes('  const handleRankingSelect=(item)=>{')) {
   console.log('Ranking selection handler already applied.');
@@ -124,14 +127,12 @@ if (source.includes('  const handleRankingSelect=(item)=>{')) {
   console.log('Ranking selection handler applied.');
 }
 
-// Place TOP 3 after the direct calculation result card.
 replaceOnce(
   '          )}\n\n        </div>\n\n        <footer',
   '          )}\n\n          {result&&<RankingSection activeTab={activeTab} T={T} isDark={isDark} onSelect={handleRankingSelect}/>}\n\n        </div>\n\n        <footer',
   'Place ranking after result'
 );
 
-// Align the master tab start with the direct calculator and move its intro below step 01.
 const masterStart = '        <div style={{display:homeMode==="master"?"block":"none",maxWidth:"600px",margin:"0 auto 18px",padding:"0 16px"}}>';
 const calculatorStart = '        <div id="calculator-start" style={{display:homeMode==="direct"?"block":"none",maxWidth:"600px",margin:"0 auto",padding:"0 16px"}}>';
 const ms = source.indexOf(masterStart);
