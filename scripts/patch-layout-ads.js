@@ -1,3 +1,4 @@
+// Final layout and advertising polish, executed after all other UI patches.
 const fs = require('fs');
 const path = require('path');
 
