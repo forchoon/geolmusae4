@@ -15,9 +15,9 @@ const oldNote='selectedMasterId==="buffett"?"버크셔 해서웨이의 공개 �
 const newNote='selectedMasterId==="buffett"?"버크셔 해서웨이의 공개 보유자료와 주주서한에서 반복적으로 확인되는 장기 보유·기업 경쟁력 관점을 중심으로 구성했어요.":selectedMasterId==="ark"?"ARK가 공개하는 ETF 보유 내역과 투자 리서치에서 자주 등장하는 파괴적 혁신 테마를 중심으로 구성했어요.":selectedMasterId==="pelosi"?"미 의회 정기거래보고서(PTR)에 공개된 배우자 거래를 바탕으로 구성했으며, 펠로시 본인의 직접 투자로 단정하지 않아요.":selectedMasterId==="parkYoungOk"?"금융감독원 5% 대량보유 공시와 주주제안 기록처럼 공개적으로 추적 가능한 지분 변화를 중심으로 구성했어요.":selectedMasterId==="kangBangCheon"?"강방천 본인의 저서·인터뷰에서 직접 회고한 성공 사례와 공개적으로 설명한 투자 관점을 중심으로 구성했어요.":"이채원이 실제 펀드를 운용하며 공개한 회고와 펀드매니저 인터뷰에서 확인되는 가치투자 사례를 중심으로 구성했어요."';
 replaceOnce(oldNote,newNote,'Korean master source note');
 
-replaceOnce('          const sharesCount=Math.floor(investKRW/fxRate/buyPrice);','          const sharesCount=Math.floor(/\\.(KS|KQ)$/.test(selectedMasterCase.ticker)?investKRW/buyPrice:investKRW/fxRate/buyPrice);','Korean master shares calculation');
+replaceOnce('                const exactYears=(new Date()-new Date(dateStr))/(1000*60*60*24*365.25);const cagr=((Math.pow(priceRatio,1/Math.max(exactYears,.1))-1)*100).toFixed(1);const sharesCount=Math.floor((investKRW/usdToKrw)/bp);','                const exactYears=(new Date()-new Date(dateStr))/(1000*60*60*24*365.25);const cagr=((Math.pow(priceRatio,1/Math.max(exactYears,.1))-1)*100).toFixed(1);const sharesCount=Math.floor(/\\.(KS|KQ)$/.test(selectedMasterCase.ticker)?investKRW/bp:(investKRW/usdToKrw)/bp);','Korean master shares calculation');
 
-replaceOnce('                          <div style={{fontSize:"11px",color:T.textMuted,marginTop:"2px"}}>{formatUSD(masterResult.currentValueKRW/fxRate)}</div>','                          {!/\\.(KS|KQ)$/.test(selectedMasterCase.ticker)&&<div style={{fontSize:"11px",color:T.textMuted,marginTop:"2px"}}>{formatUSD(masterResult.currentValueKRW/fxRate)}</div>}','Hide USD equivalent for Korean master');
+replaceOnce('<div style={{fontSize:"11px",color:T.textMuted,marginTop:"2px"}}>{formatUSD(masterResult.currentValueKRW/usdToKrw)}</div>','{/\\.(KS|KQ)$/.test(selectedMasterCase.ticker)?null:<div style={{fontSize:"11px",color:T.textMuted,marginTop:"2px"}}>{formatUSD(masterResult.currentValueKRW/usdToKrw)}</div>}','Hide USD equivalent for Korean master');
 
 if(!s.includes('term:"5% 공시"')){
   const statusLine='  const status=String(evidence?.status||"");';
