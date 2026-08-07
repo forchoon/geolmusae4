@@ -1,5 +1,6 @@
   const [masterActivityView,setMasterActivityView]=useState("recent");
   const [masterActivityPerformance,setMasterActivityPerformance]=useState({});
+  const [masterArchivedHistory,setMasterArchivedHistory]=useState([]);
   const [masterLegendChartData,setMasterLegendChartData]=useState(null);
   const [masterLegendChartYears,setMasterLegendChartYears]=useState(null);
   const [masterLegendBuyPrice,setMasterLegendBuyPrice]=useState(null);
@@ -10,7 +11,11 @@
   const [masterLegendAnimKey,setMasterLegendAnimKey]=useState(0);
 
   const masterRecentSource=(masterRecentLive&&masterRecentLive[selectedMasterId])||MASTER_RECENT_ACTIVITY[selectedMasterId]||{title:"최근 공개 내역",freshness:"",items:[]};
-  const masterHistoryItems=MASTER_ACTIVITY_HISTORY[selectedMasterId]||[];
+  const masterRecentKeys=new Set((masterRecentSource.items||[]).map(item=>`${item.ticker||""}|${item.eventDate||""}|${item.badge||""}`));
+  const masterHistoryItems=[...masterArchivedHistory,...(MASTER_ACTIVITY_HISTORY[selectedMasterId]||[])]
+    .filter((item,idx,arr)=>item&&item.ticker&&item.eventDate&&arr.findIndex(x=>`${x.ticker||""}|${x.eventDate||""}|${x.badge||""}`===`${item.ticker||""}|${item.eventDate||""}|${item.badge||""}`)===idx)
+    .filter(item=>!masterRecentKeys.has(`${item.ticker||""}|${item.eventDate||""}|${item.badge||""}`))
+    .sort((a,b)=>String(b.eventDate||"").localeCompare(String(a.eventDate||"")));
   const masterActivityItems=masterActivityView==="recent"?(masterRecentSource.items||[]):masterHistoryItems;
   const masterActivityTitle=selectedMasterId==="buffett"?"버핏의 버크셔는 최근 뭘 거래했지?":selectedMasterId==="ark"?"캐시 우드는 최근 뭘 거래했지?":selectedMasterId==="pelosi"?"펠로시 일가는 최근 뭘 거래했지?":`${selectedMaster.shortName||selectedMaster.name}의 공개 기록`;
   const masterLegendRange=masterEvidenceRange(selectedMasterEvidence,selectedMasterCase.year);
@@ -24,6 +29,31 @@
     setMasterLegendResult(null);
     setMasterQuickAmount(1000);
   },[selectedMasterId]);
+
+  useEffect(()=>{
+    let cancelled=false;
+    fetch(`/api/master-history?master=${encodeURIComponent(selectedMasterId)}`)
+      .then(r=>r.ok?r.json():null)
+      .then(data=>{if(!cancelled&&Array.isArray(data?.items))setMasterArchivedHistory(data.items);})
+      .catch(()=>{});
+    return()=>{cancelled=true;};
+  },[selectedMasterId]);
+
+  useEffect(()=>{
+    const items=masterRecentSource.items||[];
+    if(!items.length)return;
+    let cancelled=false;
+    const sync=async()=>{
+      try{
+        await fetch('/api/master-history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({master:selectedMasterId,items})});
+        const r=await fetch(`/api/master-history?master=${encodeURIComponent(selectedMasterId)}`);
+        const data=await r.json();
+        if(!cancelled&&Array.isArray(data?.items))setMasterArchivedHistory(data.items);
+      }catch(e){}
+    };
+    sync();
+    return()=>{cancelled=true;};
+  },[selectedMasterId,masterRecentSource.updatedAt,masterRecentSource.freshness]);
 
   useEffect(()=>{
     let cancelled=false;
@@ -43,7 +73,7 @@
       setMasterActivityPerformance(prev=>{const next={...prev};rows.forEach(([k,v])=>next[k]=v);return next;});
     });
     return()=>{cancelled=true;};
-  },[selectedMasterId,masterActivityView,masterRecentSource.updatedAt,masterRecentSource.freshness]);
+  },[selectedMasterId,masterActivityView,masterRecentSource.updatedAt,masterRecentSource.freshness,masterArchivedHistory.length]);
 
   useEffect(()=>{
     let cancelled=false;
