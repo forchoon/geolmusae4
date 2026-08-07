@@ -26,8 +26,42 @@ function excelDate(v){
   const ymd=s.match(/(20\d{2})[-\/.](\d{1,2})[-\/.](\d{1,2})/);if(ymd)return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
   return isoFromUS(s);
 }
-function emoji(name){const s=String(name).toUpperCase();if(s.includes('APPLE'))return'🍎';if(s.includes('ALPHABET')||s.includes('GOOGLE'))return'🔎';if(s.includes('AMAZON'))return'📦';if(s.includes('INTEL'))return'🧠';if(s.includes('NVIDIA'))return'🧠';if(s.includes('COINBASE'))return'🪙';if(s.includes('TESLA'))return'🚗';if(s.includes('ROKU'))return'📺';if(s.includes('ROBINHOOD'))return'🏹';if(s.includes('CIRCLE'))return'⭕';return'📈';}
+function emoji(name){const s=String(name).toUpperCase();if(s.includes('APPLE'))return'🍎';if(s.includes('ALPHABET')||s.includes('GOOGLE'))return'🔎';if(s.includes('AMAZON'))return'📦';if(s.includes('INTEL')||s.includes('NVIDIA'))return'🧠';if(s.includes('COINBASE'))return'🪙';if(s.includes('TESLA'))return'🚗';if(s.includes('ROKU'))return'📺';if(s.includes('ROBINHOOD'))return'🏹';if(s.includes('CIRCLE'))return'⭕';return'📈';}
+function cleanHeader(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9%]+/g,'');}
 
+function parseArkWorkbook(buf){
+  const wb=XLSX.read(buf,{type:'buffer',cellDates:true});
+  const out=[];
+  for(const sheet of wb.SheetNames){
+    const matrix=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:'',raw:true});
+    let hi=-1,headers=[];
+    for(let i=0;i<Math.min(matrix.length,15);i++){
+      const h=matrix[i].map(cleanHeader);
+      const score=['date','fund','direction','ticker','company','shares'].filter(k=>h.some(x=>x===k||x.includes(k))).length;
+      if(score>=4){hi=i;headers=h;break;}
+    }
+    if(hi<0)continue;
+    const idx=re=>headers.findIndex(x=>re.test(x));
+    const dateI=idx(/^date$|tradedate/),fundI=idx(/fund/),dirI=idx(/direction|buysell|transactiontype|tradeaction/),tickerI=idx(/ticker/),companyI=idx(/company|securityname|name/),sharesI=idx(/shares/);
+    for(let i=hi+1;i<matrix.length;i++){
+      const row=matrix[i];
+      if(!row||!row.some(v=>String(v).trim()))continue;
+      let direction=dirI>=0?String(row[dirI]||'').trim():'';
+      if(!direction){const hit=row.find(v=>/^(buy|sell|purchase|sale)$/i.test(String(v).trim()));direction=hit?String(hit).trim():'';}
+      let ticker=tickerI>=0?String(row[tickerI]||'').trim():'';
+      if(!ticker){const hit=row.find(v=>/^[A-Z][A-Z.]{0,6}$/.test(String(v).trim())&&!/^(ARKK|ARKW|ARKG|ARKF|ARKQ|ARKX|ARKB|ARKD|ARKZ)$/.test(String(v).trim()));ticker=hit?String(hit).trim():'';}
+      out.push({
+        fund:fundI>=0?String(row[fundI]||'').trim():'',
+        date:dateI>=0?excelDate(row[dateI]):'',
+        direction,
+        ticker,
+        company:companyI>=0?String(row[companyI]||'').trim():'',
+        shares:sharesI>=0?Number(String(row[sharesI]||'').replace(/,/g,''))||0:0
+      });
+    }
+  }
+  return out;
+}
 async function getArk(){
   const url='https://etfs.ark-funds.com/hubfs/idt/trades/ARK_Trades.xls';
   const {buf,contentType}=await getBuffer(url,{
@@ -35,42 +69,31 @@ async function getArk(){
     'Accept':'application/vnd.ms-excel,application/octet-stream;q=0.9,*/*;q=0.8'
   });
   if(buf.length<500)throw new Error(`ARK file too small ${buf.length} ${contentType}`);
-  const wb=XLSX.read(buf,{type:'buffer',cellDates:true});
-  const rows=[];
-  for(const sheet of wb.SheetNames){
-    const ws=wb.Sheets[sheet];
-    rows.push(...XLSX.utils.sheet_to_json(ws,{defval:'',raw:true}));
+  const rows=parseArkWorkbook(buf);
+  const buys=rows.filter(x=>x.date&&x.ticker&&/buy|purchase/i.test(x.direction));
+  buys.sort((a,b)=>b.date.localeCompare(a.date));
+  const latest=buys[0]?.date;
+  if(!latest){
+    const sample=rows.slice(0,3).map(x=>`${x.date}|${x.direction}|${x.ticker}`).join(';');
+    throw new Error(`ARK rows=${rows.length}, buys=0, sample=${sample}`);
   }
-  const norm=rows.map(r=>{
-    const entries=Object.entries(r);
-    const get=re=>{const hit=entries.find(([k])=>re.test(String(k).trim()));return hit?hit[1]:'';};
-    return {
-      fund:String(get(/^fund$/i)||get(/fund/i)).trim(),
-      date:excelDate(get(/^date$/i)||get(/date/i)),
-      direction:String(get(/direction|buy.?sell|trade/i)).trim(),
-      ticker:String(get(/^ticker$/i)||get(/ticker/i)).trim(),
-      company:String(get(/^name$/i)||get(/company|security/i)).trim(),
-      shares:Number(String(get(/shares/i)).replace(/,/g,''))||0
-    };
-  }).filter(x=>x.date&&x.ticker&&/buy|purchase/i.test(x.direction));
-  norm.sort((a,b)=>b.date.localeCompare(a.date));
-  const latest=norm[0]?.date;
-  if(!latest)throw new Error(`ARK parsed rows=${rows.length}, buys=0`);
-  const sameDay=norm.filter(x=>x.date===latest);
   const grouped=new Map();
-  for(const x of sameDay){const k=x.ticker;if(!grouped.has(k))grouped.set(k,{...x,shares:0,funds:new Set()});const g=grouped.get(k);g.shares+=x.shares;if(x.fund)g.funds.add(x.fund);}
+  for(const x of buys.filter(x=>x.date===latest)){
+    const k=x.ticker;
+    if(!grouped.has(k))grouped.set(k,{...x,shares:0,funds:new Set()});
+    const g=grouped.get(k);g.shares+=x.shares;if(x.fund)g.funds.add(x.fund);
+  }
   const items=[...grouped.values()].sort((a,b)=>b.shares-a.shares).slice(0,3).map(x=>({
     emoji:emoji(x.company||x.ticker),name:x.company||x.ticker,ticker:x.ticker,badge:'🟢 더 담음',eventDate:x.date,period:x.date,
     scale:x.shares?`${Math.round(x.shares).toLocaleString('en-US')}주 매수 공개`:'매수 공개',rawScale:'',
     summary:`${[...x.funds].join('·')||'ARK ETF'}에서 ${x.ticker}을(를) 추가 매수한 내역이 공식 최신 거래 파일에 공개됐어요.`,
     cta:'그날 나도 샀다면? →',sourceLabel:'ARK 공식 거래 알림',sourceUrl:'https://www.ark-funds.com/ark-trade-notifications',market:'us',basis:'ARK가 공개한 거래일 기준'
   }));
-  return {title:'🚀 캐시 우드는 최근 뭐 샀지?',subtitle:'ARK가 장 마감 뒤 공개하는 최신 거래 파일을 자동으로 확인해요.',freshness:`ARK 공식 공개 거래 · ${latest}`,note:'💡 ARK 거래 알림은 장 마감 뒤 공개돼요. IPO·ETF 설정/환매 등 일부 거래는 파일에서 제외될 수 있어요.',items,updatedAt:new Date().toISOString()};
+  return {title:'🚀 캐시 우드는 최근 뭐 샀지?',subtitle:'ARK가 장 마감 뒤 공개하는 최신 거래 파일을 자동으로 확인해요.',freshness:`ARK 공식 공개 거래 · ${latest}`,note:'💡 ARK 거래 알림은 장 마감 뒤 공개돼요. IPO·ETF 설정·환매 등 일부 거래는 파일에서 빠질 수 있어요.',items,updatedAt:new Date().toISOString()};
 }
 
-function findPelosiFiling(txt,year){
-  const lines=txt.split(/\r?\n/).filter(Boolean);
-  const found=[];
+function findPelosiFilings(txt,year){
+  const lines=txt.split(/\r?\n/).filter(Boolean),found=[];
   for(const line of lines){
     if(!/pelosi/i.test(line))continue;
     const c=line.split('\t').map(v=>v.trim());
@@ -80,16 +103,28 @@ function findPelosiFiling(txt,year){
     if(doc)found.push({doc,filingDate:filingDate||'',year});
   }
   found.sort((a,b)=>(isoFromUS(b.filingDate)||b.doc).localeCompare(isoFromUS(a.filingDate)||a.doc));
-  return found[0]||null;
+  return found;
 }
 function parsePelosiTransactions(text){
   const compact=text.replace(/\r/g,' ').replace(/\n+/g,' ').replace(/\s+/g,' ');
   const out=[];
-  const patterns=[
-    /(SP|JT|DC|DEP)?\s*([^$]{3,220}?)\s+(P|S \(partial\)|S)\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+\$([\d,]+)\s*-\s*\$([\d,]+)/g,
-    /Owner\s+(SP|JT|DC|DEP)\s+Asset\s+(.{3,220}?)\s+Transaction Type\s+(P|S \(partial\)|S)\s+Date\s+(\d{2}\/\d{2}\/\d{4})\s+Notification Date\s+(\d{2}\/\d{2}\/\d{4})\s+Amount\s+\$([\d,]+)\s*-\s*\$([\d,]+)/g
-  ];
-  for(const re of patterns){let m;while((m=re.exec(compact))&&out.length<30){const asset=m[2].trim();if(asset.length>220)continue;out.push({owner:m[1]||'',asset,type:m[3],date:m[4],notify:m[5],lo:Number(m[6].replace(/,/g,'')),hi:Number(m[7].replace(/,/g,''))});}if(out.length)break;}
+  const ranges=[...compact.matchAll(/\$([\d,]+)\s*-\s*\$([\d,]+)/g)];
+  for(const rg of ranges){
+    const at=rg.index||0;
+    const before=compact.slice(Math.max(0,at-420),at);
+    const dateMatches=[...before.matchAll(/(\d{2}\/\d{2}\/\d{4})/g)];
+    if(!dateMatches.length)continue;
+    const date=dateMatches[Math.max(0,dateMatches.length-2)]?.[1]||dateMatches[dateMatches.length-1][1];
+    const typeMatch=before.match(/(?:^|\s)(P|S \(partial\)|S)\s+\d{2}\/\d{2}\/\d{4}/);
+    if(!typeMatch)continue;
+    const type=typeMatch[1];
+    const ownerMatches=[...before.matchAll(/(?:^|\s)(SP|JT|DC|DEP)(?:\s|$)/g)];
+    const owner=ownerMatches.length?ownerMatches[ownerMatches.length-1][1]:'';
+    let asset=before.slice(Math.max(0,typeMatch.index-220),typeMatch.index).trim();
+    asset=asset.replace(/^.*?(?:Asset|Owner)\s+/i,'').replace(/\s+/g,' ').trim();
+    if(asset.length>240)asset=asset.slice(-240);
+    out.push({owner,asset,type,date,lo:Number(rg[1].replace(/,/g,'')),hi:Number(rg[2].replace(/,/g,''))});
+  }
   return out;
 }
 async function getPelosi(){
@@ -100,23 +135,30 @@ async function getPelosi(){
   const entries=zip.getEntries();
   const txtEntry=entries.find(e=>new RegExp(`${year}FD\\.txt$`,'i').test(e.entryName))||entries.find(e=>/\.txt$/i.test(e.entryName));
   if(!txtEntry)throw new Error('House yearly TXT index missing');
-  const filing=findPelosiFiling(txtEntry.getData().toString('utf8'),year);
-  if(!filing)throw new Error('Pelosi PTR not found in yearly index');
-  const url=`https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/${year}/${filing.doc}.pdf`;
-  const {buf:pdf}=await getBuffer(url,{'Referer':'https://disclosures-clerk.house.gov/FinancialDisclosure'});
-  const parsed=await pdfParse(pdf);
-  const tx=parsePelosiTransactions(parsed.text).filter(x=>x.type==='P').slice(0,3);
-  if(!tx.length)throw new Error(`Pelosi PTR ${filing.doc} parsed no purchases`);
+  const filings=findPelosiFilings(txtEntry.getData().toString('utf8'),year);
+  if(!filings.length)throw new Error('Pelosi PTR not found in yearly index');
+  let chosen=null,transactions=[];
+  for(const filing of filings.slice(0,12)){
+    try{
+      const url=`https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/${year}/${filing.doc}.pdf`;
+      const {buf:pdf}=await getBuffer(url,{'Referer':'https://disclosures-clerk.house.gov/FinancialDisclosure'});
+      const parsed=await pdfParse(pdf);
+      const buys=parsePelosiTransactions(parsed.text).filter(x=>x.type==='P');
+      if(buys.length){chosen={...filing,url};transactions=buys;break;}
+    }catch{}
+  }
+  if(!chosen)throw new Error(`Pelosi checked ${Math.min(12,filings.length)} PTRs, no purchase rows parsed`);
   const items=[];
-  for(const x of tx){
+  for(const x of transactions){
     const tick=(x.asset.match(/\(([A-Z.]{1,7})\)/)||[])[1]||'';
     if(!tick)continue;
-    const option=/\[OP\]|option/i.test(x.asset);
-    const name=x.asset.replace(/\s*\([^)]*\)[\s\S]*$/,'').replace(/\s*-\s*(Common|Class).*$/i,'').trim();
-    items.push({emoji:emoji(name),name:name||tick,ticker:tick,badge:option?'🟢 콜옵션 매수':'🟢 매수·취득 신고',eventDate:isoFromUS(x.date),period:isoFromUS(x.date),scale:rangeKrw(x.lo,x.hi),rawScale:`미화 ${x.lo.toLocaleString('en-US')}~${x.hi.toLocaleString('en-US')}달러`,summary:`${x.owner==='SP'?'배우자 명의로 ':''}${tick} 관련 ${option?'콜옵션':'주식'} 거래가 미 하원에 신고됐어요.`,cta:option?'그날 주식을 샀다면? →':'그날 나도 샀다면? →',sourceLabel:'미 하원 거래 신고(PTR)',sourceUrl:url,market:'us',basis:option?'옵션 수익이 아니라 같은 날 기초 주식을 샀다고 가정':'신고된 거래일 기준'});
+    const option=/\[OP\]|option|call/i.test(x.asset);
+    const name=x.asset.replace(/^.*?(SP|JT|DC|DEP)\s+/,'').replace(/\s*\([^)]*\)[\s\S]*$/,'').replace(/\s*-\s*(Common|Class).*$/i,'').trim();
+    items.push({emoji:emoji(name),name:name||tick,ticker:tick,badge:option?'🟢 콜옵션 매수':'🟢 매수·취득 신고',eventDate:isoFromUS(x.date),period:isoFromUS(x.date),scale:rangeKrw(x.lo,x.hi),rawScale:`미화 ${x.lo.toLocaleString('en-US')}~${x.hi.toLocaleString('en-US')}달러`,summary:`${x.owner==='SP'?'배우자 명의로 ':''}${tick} 관련 ${option?'콜옵션':'주식'} 거래가 미 하원에 신고됐어요.`,cta:option?'그날 주식을 샀다면? →':'그날 나도 샀다면? →',sourceLabel:'미 하원 거래 신고(PTR)',sourceUrl:chosen.url,market:'us',basis:option?'옵션 수익이 아니라 같은 날 기초 주식을 샀다고 가정':'신고된 거래일 기준'});
+    if(items.length>=3)break;
   }
-  if(!items.length)throw new Error(`Pelosi PTR ${filing.doc} had no ticker purchases`);
-  return {title:'👀 펠로시 일가는 최근 뭐 거래했지?',subtitle:'미 하원의 공식 연간 인덱스에서 가장 최신 거래 신고서를 자동으로 찾아요.',freshness:`미 하원 최신 거래 신고 · ${filing.filingDate||filing.doc}`,note:'💡 PTR은 거래가 일어난 즉시 공개되는 자료가 아니고 신고 뒤 공개돼요. SP는 배우자(Spouse)예요. 옵션은 주식 매수와 다른 상품이라 계산에서는 같은 날 주식을 샀다고 가정해요.',items,updatedAt:new Date().toISOString()};
+  if(!items.length)throw new Error(`Pelosi PTR ${chosen.doc} purchases had no ticker symbols`);
+  return {title:'👀 펠로시 일가는 최근 뭐 거래했지?',subtitle:'미 하원의 공식 연간 인덱스에서 최근 매수·취득 신고를 자동으로 찾아요.',freshness:`미 하원 최근 매수 신고 · ${chosen.filingDate||chosen.doc}`,note:'💡 PTR은 거래가 일어난 즉시 공개되는 자료가 아니고 신고 뒤 공개돼요. SP는 배우자(Spouse)예요. 옵션은 주식과 다른 상품이라 계산에서는 같은 날 해당 주식을 샀다고 가정해요.',items,updatedAt:new Date().toISOString()};
 }
 
 export default async function handler(req,res){
