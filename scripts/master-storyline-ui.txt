@@ -1,0 +1,117 @@
+        <div style={{display:homeMode==="master"?"block":"none",maxWidth:"600px",margin:"0 auto 18px",padding:"0 16px"}}>
+          <div style={{marginBottom:"30px",paddingTop:"16px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"16px"}}>
+              <span style={snStyle}>01</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>누구 거 볼까?</span>
+              <div style={{flex:1,height:"1px",background:T.border}}/>
+            </div>
+
+            <div style={{display:"flex",gap:"0px",marginBottom:"16px",borderBottom:`2px solid ${T.border}`,margin:"0 -16px 16px",padding:"0 16px"}}>
+              <button type="button" onClick={()=>{setMasterRegion("global");setSelectedMasterId("buffett");setSelectedMasterCaseIndex(0);setMasterLegendResult(null);}} style={{flex:1,padding:"10px 4px",background:"transparent",border:"none",borderBottom:`2px solid ${masterRegion==="global"?T.accent:"transparent"}`,marginBottom:"-2px",cursor:"pointer",color:masterRegion==="global"?T.accent:T.textMuted,fontSize:"13px",fontWeight:masterRegion==="global"?"700":"400",transition:"all 0.2s"}}>🇺🇸 해외</button>
+              <button type="button" onClick={()=>{setMasterRegion("kr");setSelectedMasterId("parkYoungOk");setSelectedMasterCaseIndex(0);setMasterLegendResult(null);}} style={{flex:1,padding:"10px 4px",background:"transparent",border:"none",borderBottom:`2px solid ${masterRegion==="kr"?T.accent:"transparent"}`,marginBottom:"-2px",cursor:"pointer",color:masterRegion==="kr"?T.accent:T.textMuted,fontSize:"13px",fontWeight:masterRegion==="kr"?"700":"400",transition:"all 0.2s"}}>🇰🇷 국내</button>
+            </div>
+
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:"7px",marginBottom:"22px"}}>
+              {Object.entries(MASTER_PROFILES).filter(([,profile])=>(profile.region||"global")===masterRegion).map(([id,profile])=>{const active=selectedMasterId===id;return <button key={id} type="button" onClick={()=>{setSelectedMasterId(id);setSelectedMasterCaseIndex(0);setMasterLegendResult(null);}} style={{minHeight:"76px",padding:"11px 6px",background:active?T.presetActive:T.bgCard,border:`1px solid ${active?T.borderActive:T.border}`,borderRadius:"12px",cursor:"pointer",textAlign:"center",transition:"all .2s"}}><div style={{fontSize:"24px",lineHeight:1,marginBottom:"7px"}}>{profile.emoji}</div><div style={{fontSize:"13px",fontWeight:"700",color:active?T.accent:T.text,letterSpacing:"-0.2px"}}>{profile.shortName||profile.name}</div></button>})}
+            </div>
+
+            <div style={{paddingTop:"4px"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"10px",marginBottom:"10px"}}>
+                <div style={{fontSize:"16px",fontWeight:"700",color:T.text,letterSpacing:"-0.3px"}}>{masterActivityTitle}</div>
+                {masterActivityView==="recent"&&masterRecentSource.freshness&&<span style={{fontSize:"9px",fontWeight:"700",color:T.accent,whiteSpace:"nowrap"}}>● 최신 공개자료 기준</span>}
+              </div>
+              <div style={{display:"flex",gap:"0",borderBottom:`1px solid ${T.border}`,marginBottom:"12px"}}>
+                {[{id:"recent",label:"최근 공개"},{id:"history",label:"지난 기록"}].map(v=><button key={v.id} type="button" onClick={()=>setMasterActivityView(v.id)} style={{padding:"8px 12px",border:"none",borderBottom:`2px solid ${masterActivityView===v.id?T.accent:"transparent"}`,marginBottom:"-1px",background:"transparent",color:masterActivityView===v.id?T.accent:T.textMuted,fontSize:"12px",fontWeight:masterActivityView===v.id?"700":"400",cursor:"pointer"}}>{v.label}</button>)}
+              </div>
+
+              {masterActivityItems.length>0?<div style={{display:"grid",gap:"9px"}}>
+                {masterActivityItems.map((item,idx)=>{const action=easyMasterAction(item);const key=`${item.ticker}|${item.eventDate}`;const perf=masterActivityPerformance[key];const kr=item.market==="kr"||/\.(KS|KQ)$/.test(item.ticker);const price=v=>kr?formatKRW(v):formatUSD(v);return <div key={`${key}-${idx}`} style={{padding:"14px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"14px"}}>
+                  <div style={{display:"flex",alignItems:"flex-start",gap:"10px"}}>
+                    <div style={{width:"40px",height:"40px",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center",background:T.presetActive,fontSize:"21px",flexShrink:0}}>{item.emoji||"📈"}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",justifyContent:"space-between",gap:"8px",alignItems:"flex-start"}}><div><div style={{fontSize:"15px",fontWeight:"750",color:T.text}}>{item.name} <span style={{fontSize:"10px",color:T.textMuted}}>{item.ticker}</span></div><div style={{fontSize:"11px",color:T.textMuted,marginTop:"3px"}}>{item.period||item.eventDate}</div></div><span style={{fontSize:"10px",fontWeight:"700",color:T.accent,background:T.presetActive,padding:"5px 7px",borderRadius:"999px",textAlign:"right",maxWidth:"145px"}}>{action.label}</span></div>
+                    </div>
+                  </div>
+                  {item.scale&&<div style={{marginTop:"10px",fontSize:"13px",fontWeight:"700",color:T.text}}>{humanizeMasterMoneyText(item.scale,usdToKrw)}</div>}
+                  {perf&&perf.loading?<div style={{marginTop:"11px",padding:"11px 12px",background:T.bgDeep,borderRadius:"11px",fontSize:"11px",color:T.textMuted}}>📡 당시 주가와 지금 주가를 확인하는 중...</div>:perf&&!perf.error?<div style={{marginTop:"11px",padding:"12px",background:T.bgDeep,border:`1px solid ${T.border}`,borderRadius:"11px"}}><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"10px"}}><div style={{fontSize:"12px",color:T.textSub}}>{/13F|보유/.test((item.sourceLabel||"")+" "+(item.basis||""))?"공개 기준":"그때"} <strong style={{color:T.text}}>{price(perf.buyPrice)}</strong> <span style={{color:T.textMuted}}>→</span> 지금 <strong style={{color:T.text}}>{price(perf.currentPrice)}</strong></div><strong style={{fontSize:"15px",color:perf.returnPct>=0?T.accent:"#f87171",whiteSpace:"nowrap"}}>{perf.returnPct>=0?"+":""}{perf.returnPct.toFixed(1)}%</strong></div><div style={{fontSize:"10px",color:T.textMuted,marginTop:"5px"}}>그날 이후 주가 변화 기준</div></div>:null}
+                  <div style={{fontSize:"12px",lineHeight:1.65,color:T.textSub,marginTop:"9px"}}>{item.summary}</div>
+                  {(action.term||/13F|보유자료|보유 공개/.test((item.sourceLabel||"")+" "+(item.basis||"")))&&<div style={{marginTop:"9px",padding:"9px 10px",background:T.inputBg,borderRadius:"10px",fontSize:"10px",lineHeight:1.6,color:T.textMuted}}>{action.term&&<strong style={{color:T.text,marginRight:"4px"}}>{action.term}이 뭐예요?</strong>}{masterActivityHelp(item)}</div>}
+                  {item.sourceUrl&&<div style={{marginTop:"9px",textAlign:"right"}}><a href={item.sourceUrl} target="_blank" rel="noreferrer" style={{fontSize:"10px",color:T.textMuted,textDecoration:"none"}}>원문 확인 ↗</a></div>}
+                </div>})}
+              </div>:<div style={{padding:"16px 14px",background:T.bgCard,border:`1px dashed ${T.border}`,borderRadius:"13px",fontSize:"12px",lineHeight:1.65,color:T.textSub}}>📭 {masterActivityView==="recent"?"정기적으로 공개되는 최신 거래자료가 없어요.":"확인 가능한 과거 거래 기록을 별도로 제공하기 어려워요."}<br/><span style={{color:T.textMuted}}>추정해서 채우지 않고, 아래 레전드 투자에서 공개자료로 확인되는 대표 사례를 보여드려요.</span></div>}
+            </div>
+          </div>
+
+          <div style={{marginBottom:"30px",paddingTop:"10px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"14px"}}>
+              <span style={snStyle}>02</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>📚 레전드 투자</span>
+              <div style={{flex:1,height:"1px",background:T.border}}/>
+            </div>
+            <div style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>연도 위의 브랜드를 눌러 투자 흐름을 따라가보세요.</div>
+
+            <div style={{overflowX:"auto",padding:"5px 0 10px",WebkitOverflowScrolling:"touch"}}>
+              <div style={{position:"relative",display:"flex",minWidth:`${Math.max(100,selectedMaster.cases.length*92)}%`,padding:"0 8px"}}>
+                <div style={{position:"absolute",left:"36px",right:"36px",top:"42px",height:"2px",background:T.border}}/>
+                {selectedMaster.cases.map((item,idx)=>({...item,originalIndex:idx})).sort((a,b)=>a.year-b.year).map(item=>{const active=selectedMasterCaseIndex===item.originalIndex;return <button key={`${item.ticker}-${item.year}`} type="button" onClick={()=>{setSelectedMasterCaseIndex(item.originalIndex);setMasterLegendResult(null);}} style={{position:"relative",zIndex:1,width:"92px",flex:"0 0 92px",padding:"0 4px",border:"none",background:"transparent",cursor:"pointer",textAlign:"center"}}><div style={{fontSize:"11px",fontWeight:active?"800":"600",color:active?T.accent:T.textMuted,marginBottom:"8px"}}>{item.year}</div><div style={{width:"38px",height:"38px",margin:"0 auto 7px",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"21px",background:active?T.presetActive:T.bgCard,border:`2px solid ${active?T.borderActive:T.border}`,boxShadow:active?`0 0 0 4px ${T.accent}12`:"none"}}>{MASTER_CASE_EMOJI[item.ticker]||"📈"}</div><div style={{fontSize:"10px",fontWeight:active?"700":"500",color:active?T.text:T.textMuted,lineHeight:1.3,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{item.name}</div></button>})}
+              </div>
+            </div>
+
+            <div style={{background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"16px",overflow:"hidden"}}>
+              <div style={{padding:"15px 16px 12px",borderBottom:`1px solid ${T.border}`}}>
+                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:"10px"}}><div style={{display:"flex",alignItems:"center",gap:"9px"}}><span style={{fontSize:"26px"}}>{MASTER_CASE_EMOJI[selectedMasterCase.ticker]||"📈"}</span><div><div style={{fontSize:"17px",fontWeight:"750",color:T.text}}>{selectedMasterCase.name}</div><div style={{fontSize:"11px",color:T.textMuted,marginTop:"2px"}}>{selectedMasterCase.year}년 대표 사례 · {selectedMasterCase.ticker}</div></div></div>{masterLegendReturnPct!==null&&<div style={{textAlign:"right"}}><div style={{fontSize:"10px",color:T.textMuted}}>그때 → 지금</div><div style={{fontSize:"18px",fontWeight:"800",color:masterLegendReturnPct>=0?T.accent:"#f87171"}}>{masterLegendReturnPct>=0?"+":""}{masterLegendReturnPct.toFixed(1)}%</div></div>}</div>
+                {masterLegendBuyPrice&&masterLegendCurrentPrice&&<div style={{marginTop:"12px",display:"flex",alignItems:"center",gap:"8px",fontSize:"13px",color:T.textSub}}><strong style={{color:T.text}}>{masterLegendDisplayPrice(masterLegendBuyPrice)}</strong><span style={{color:T.textMuted}}>→</span><strong style={{color:T.text}}>{masterLegendDisplayPrice(masterLegendCurrentPrice)}</strong>{masterLegendReturnPct!==null&&<span style={{marginLeft:"auto",fontSize:"11px",color:T.textMuted}}>{formatMultiple(masterLegendCurrentPrice,masterLegendBuyPrice)}</span>}</div>}
+              </div>
+              <div style={{padding:"10px 12px 4px"}}>
+                {masterLegendLoading?<div style={{padding:"38px 16px",textAlign:"center",fontSize:"12px",color:T.textMuted}}>📊 주가 흐름을 불러오는 중...</div>:<MasterLegendChart ticker={selectedMasterCase.ticker} startYear={masterLegendRange.start} endYear={masterLegendRange.end} T={T} displayPrice={masterLegendDisplayPrice} chartData={masterLegendChartData} chartYears={masterLegendChartYears} buyPrice={masterLegendBuyPrice} entryLabel={masterLegendRange.end>masterLegendRange.start?"매입 기간":"공개 거래·기준 시점"}/>} 
+              </div>
+              <div style={{padding:"12px 14px 15px",borderTop:`1px solid ${T.border}`}}>
+                <div style={{padding:"11px 12px",background:T.bgDeep,borderRadius:"11px",marginBottom:"9px"}}><div style={{fontSize:"10px",fontWeight:"750",color:T.accent,marginBottom:"4px"}}>🦜 쉽게 보면</div><div style={{fontSize:"12px",lineHeight:1.7,color:T.textSub}}>{MASTER_CASE_BEGINNER_COPY[selectedMasterCase.ticker]||selectedMasterCase.note}</div></div>
+                <div style={{fontSize:"10px",fontWeight:"750",color:T.textMuted,marginBottom:"4px"}}>공개자료에서 확인된 내용</div>
+                <div style={{fontSize:"11px",lineHeight:1.7,color:T.textSub}}>{selectedMasterEvidence.fact}</div>
+                {masterLegendGlossary.length>0&&<div style={{marginTop:"10px",paddingTop:"9px",borderTop:`1px solid ${T.border}`}}>{masterLegendGlossary.map(g=><div key={g.term} style={{fontSize:"10px",lineHeight:1.65,color:T.textMuted,marginTop:"4px"}}><strong style={{color:T.text}}>{g.term}</strong> · {g.text}</div>)}</div>}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"8px",marginTop:"10px"}}><span style={{fontSize:"9px",color:T.textMuted}}>{selectedMasterEvidence.note}</span>{selectedMasterEvidence.sourceUrl&&<a href={selectedMasterEvidence.sourceUrl} target="_blank" rel="noreferrer" style={{fontSize:"10px",color:T.accent,textDecoration:"none",whiteSpace:"nowrap"}}>원문 ↗</a>}</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="master-amount-step" style={{marginBottom:"30px",paddingTop:"10px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}>
+              <span style={snStyle}>03</span>
+              <span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>나도 그때 샀다면?</span>
+              <div style={{flex:1,height:"1px",background:T.border}}/>
+            </div>
+            <div style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>{MASTER_CASE_EMOJI[selectedMasterCase.ticker]||"📈"} {selectedMasterCase.name} · {selectedMasterCase.year}년 레전드 투자 기준</div>
+            <div style={{display:"flex",gap:"7px",flexWrap:"wrap",marginBottom:"12px"}}>
+              {[1,10,100,500,1000,3000,5000,10000].map(v=>{let label;if(v>=10000)label=`${v/10000}억원`;else if(v>=1000)label=`${v/1000}천만원`;else label=`${v}만원`;return <button key={v} type="button" onClick={()=>{setMasterQuickAmount(v);setMasterLegendResult(null);}} style={{padding:"8px 12px",background:Number(masterQuickAmount)===v?T.presetActive:T.presetInactive,border:`1px solid ${Number(masterQuickAmount)===v?T.borderActive:T.border}`,borderRadius:"8px",cursor:"pointer",color:Number(masterQuickAmount)===v?T.accent:T.presetInactiveText,fontSize:"13px",fontWeight:"400",transition:"all 0.15s"}}>{label}</button>})}
+            </div>
+            <div style={{position:"relative"}}>
+              <input type="number" min="1" value={masterQuickAmount} onChange={e=>{setMasterQuickAmount(e.target.value);setMasterLegendResult(null);}} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:"10px",padding:"13px 60px 13px 16px",color:T.text,fontSize:"16px",fontWeight:"400",outline:"none",textAlign:"right"}} placeholder="직접 입력"/>
+              <span style={{position:"absolute",right:"16px",top:"50%",transform:"translateY(-50%)",color:T.textSub,fontSize:"13px",fontWeight:"400"}}>만원</span>
+            </div>
+            {masterLegendBuyPrice&&Number(masterQuickAmount)>0&&<div style={{marginTop:"12px",padding:"14px 16px",background:`${T.accent}08`,borderRadius:"14px",border:`1px solid ${T.accent}25`}}><div style={{fontSize:"14px",color:T.text,fontWeight:"400",lineHeight:1.6}}>🦜 당시 비교 기준 주가는 <strong style={{color:T.accent,fontWeight:"700"}}>{masterLegendDisplayPrice(masterLegendBuyPrice)}</strong>이었어요<br/>이 금액으로 약 <strong style={{color:T.accent,fontWeight:"700"}}>{Math.max(0,Math.floor(((masterLegendMarket==="us"?Number(masterQuickAmount)*10000/usdToKrw:Number(masterQuickAmount)*10000)/masterLegendBuyPrice)).toLocaleString())}주</strong>를 살 수 있었어요.</div></div>}
+          </div>
+
+          <div style={{marginBottom:"52px",paddingTop:"4px"}}>
+            <CoupangBanner isDark={isDark} T={T}/>
+            <button type="button" onClick={handleMasterLegendCalculate} disabled={masterLegendCalcLoading||masterLegendLoading||!masterLegendBuyPrice||!Number(masterQuickAmount)} style={{width:"100%",padding:"18px",background:(masterLegendCalcLoading||masterLegendLoading||!masterLegendBuyPrice||!Number(masterQuickAmount))?T.presetActive:`linear-gradient(135deg,${T.accentDim},#15803d)`,border:"none",borderRadius:"14px",cursor:(masterLegendCalcLoading||masterLegendLoading||!masterLegendBuyPrice)?"not-allowed":"pointer",color:"#fff",fontSize:"17px",fontWeight:"600",letterSpacing:"-0.3px",transition:"all 0.2s"}}>{masterLegendCalcLoading?"🦜 껄무새 계산 중…":masterLegendLoading?"📡 시세 조회 중…":!masterLegendBuyPrice?"시세를 불러오는 중":"📈 수익률 계산하기"}</button>
+          </div>
+
+          {masterLegendResult&&<div id="master-legend-result" key={masterLegendAnimKey} style={{marginBottom:"48px",animation:"slideUp 0.5s cubic-bezier(0.16,1,0.3,1)"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"18px"}}><span style={snStyle}>04</span><span style={{fontSize:"17px",fontWeight:"500",color:T.text,letterSpacing:"-0.3px"}}>결과</span><div style={{flex:1,height:"1px",background:T.border}}/></div>
+            {masterLegendResult.error?<div style={{padding:"16px",background:"#ef444418",border:"1px solid #ef444455",borderRadius:"14px",color:"#f87171",fontSize:"12px",textAlign:"center"}}>이 날짜의 시세를 불러오지 못했어요. 다른 레전드 투자를 골라보세요.</div>:<div style={{position:"relative",background:T.bgResult,border:`1px solid ${masterLegendResult.isProfit?T.accentDim+"80":"#ef444460"}`,borderRadius:"20px",boxShadow:masterLegendResult.isProfit?`0 8px 40px ${T.accent}15`:"0 8px 40px rgba(239,68,68,0.12)"}}>
+              <div style={{padding:"22px 20px 0",borderBottom:`1px solid ${T.border}40`}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"20px"}}><div><div style={{fontSize:"20px",color:masterLegendResult.isProfit?T.accent:"#f87171",fontWeight:"700",letterSpacing:"-0.5px",lineHeight:1,marginBottom:"5px"}}>{selectedMasterCase.name}</div><div style={{fontSize:"12px",color:T.textMuted,fontWeight:"400"}}>{masterLegendResult.date}<br/>→ 오늘 · {masterLegendResult.years}년</div></div><div style={{fontSize:"28px"}}>{masterLegendResult.isProfit?(masterLegendResult.returnPct>1000?"🦜🦜🦜":masterLegendResult.returnPct>300?"🦜🦜":"🦜"):(masterLegendResult.returnPct<-40?"😭":"😩")}</div></div>
+                <div style={{textAlign:"center",marginBottom:"20px"}}>
+                  <div style={{fontSize:"40px",fontWeight:"700",color:masterLegendResult.isProfit?T.accent:"#f87171",letterSpacing:"-2px",lineHeight:1,marginBottom:"10px"}}>{masterLegendResult.isProfit?"+":""}{masterLegendResult.returnPct.toFixed(1)}%</div>
+                  {masterLegendResult.multipleText&&<div style={{fontSize:"18px",fontWeight:"800",color:masterLegendResult.isProfit?T.accent:"#f87171",marginBottom:"12px",letterSpacing:"-0.3px"}}>{masterLegendResult.multipleText}</div>}
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"12px",marginBottom:"10px"}}><div style={{textAlign:"center"}}><div style={{fontSize:"11px",color:T.textMuted,fontWeight:"400",marginBottom:"2px"}}>투자 원금</div><div style={{fontSize:"14px",color:T.textSub,fontWeight:"700"}}>{formatKRW(masterLegendResult.principal)}</div></div><div style={{fontSize:"18px",color:T.textMuted}}>→</div><div style={{textAlign:"center"}}><div style={{fontSize:"11px",color:T.textMuted,fontWeight:"400",marginBottom:"2px"}}>현재 가치</div><div style={{fontSize:"22px",fontWeight:"700",color:masterLegendResult.isProfit?T.accent:"#f87171",letterSpacing:"-0.5px"}}><CountUp key={masterLegendAnimKey} target={masterLegendResult.currentValue} duration={1500}/></div>{masterLegendMarket==="us"&&<div style={{fontSize:"11px",color:T.textMuted,marginTop:"2px",fontWeight:"400"}}>{formatUSD(masterLegendResult.currentValue/usdToKrw)}</div>}</div></div>
+                  <div style={{display:"inline-flex",alignItems:"center",gap:"6px",padding:"6px 16px",background:masterLegendResult.isProfit?`${T.accent}15`:"rgba(239,68,68,0.12)",borderRadius:"20px"}}><span style={{fontSize:"13px",color:masterLegendResult.isProfit?T.accent:"#f87171"}}>{masterLegendResult.isProfit?"▲":"▼"}</span><span style={{fontSize:"14px",fontWeight:"700",color:masterLegendResult.isProfit?T.accent:"#f87171"}}>{formatKRW(Math.abs(masterLegendResult.profit))} {masterLegendResult.isProfit?"수익":"손실"}</span></div>
+                </div>
+                <div style={{display:"flex",gap:"8px",marginBottom:"20px"}}>{[{label:"매수가",value:masterLegendDisplayPrice(masterLegendResult.buyPrice)},{label:"현재가",value:masterLegendDisplayPrice(masterLegendResult.currentPrice)},{label:"연평균",value:`${masterLegendResult.isProfit?"+":""}${masterLegendResult.cagr.toFixed(1)}%`,h:true}].map(item=><div key={item.label} style={{flex:1,padding:"10px 8px",textAlign:"center",background:item.h?(masterLegendResult.isProfit?`${T.accent}15`:"rgba(239,68,68,0.1)"):isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)",borderRadius:"10px",border:`1px solid ${item.h?(masterLegendResult.isProfit?T.accent+"35":"#ef444435"):T.border}`}}><div style={{fontSize:"11px",color:T.textSub,marginBottom:"4px",fontWeight:"600"}}>{item.label}</div><div style={{fontSize:"13px",fontWeight:"700",color:item.h?(masterLegendResult.isProfit?T.accent:"#f87171"):T.text,wordBreak:"break-all"}}>{item.value}</div></div>)}</div>
+                {masterLegendResult.sharesCount>0&&<div style={{marginBottom:"20px",padding:"12px 16px",background:isDark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.02)",borderRadius:"12px",textAlign:"center"}}><span style={{fontSize:"14px",color:T.textSub,fontWeight:"400"}}>😱 <strong style={{color:masterLegendResult.isProfit?T.accent:"#f87171",fontWeight:"700",fontSize:"16px"}}>{masterLegendResult.sharesCount.toLocaleString()}주</strong>나 살 수 있었어요!</span></div>}
+              </div>
+              <div style={{padding:"16px 20px 22px"}}><div style={{fontSize:"14px",color:T.textMuted,textAlign:"center",lineHeight:"1.7",fontWeight:"400"}}>“그때 고수 옆에서 같이 샀을 껄… 🦜”</div><div style={{fontSize:"10px",color:T.textMuted,textAlign:"center",lineHeight:1.6,marginTop:"12px"}}>공개 거래일 또는 대표 기준일의 주가를 이용한 체험용 계산이에요. 실제 거장의 체결가격과 다를 수 있어요.</div></div>
+            </div>}
+          </div>}
+        </div>
