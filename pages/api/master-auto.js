@@ -26,7 +26,7 @@ function excelDate(v){
   const ymd=s.match(/(20\d{2})[-\/.](\d{1,2})[-\/.](\d{1,2})/);if(ymd)return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
   return isoFromUS(s);
 }
-function emoji(name){const s=String(name).toUpperCase();if(s.includes('APPLE'))return'🍎';if(s.includes('ALPHABET')||s.includes('GOOGLE'))return'🔎';if(s.includes('AMAZON'))return'📦';if(s.includes('INTEL')||s.includes('NVIDIA'))return'🧠';if(s.includes('COINBASE'))return'🪙';if(s.includes('TESLA'))return'🚗';if(s.includes('ROKU'))return'📺';if(s.includes('ROBINHOOD'))return'🏹';if(s.includes('CIRCLE'))return'⭕';return'📈';}
+function emoji(name){const s=String(name).toUpperCase();if(s.includes('APPLE'))return'🍎';if(s.includes('ALPHABET')||s.includes('GOOGLE'))return'🔎';if(s.includes('AMAZON'))return'📦';if(s.includes('INTEL')||s.includes('NVIDIA'))return'🧠';if(s.includes('COINBASE'))return'🪙';if(s.includes('TESLA'))return'🚗';if(s.includes('ROKU'))return'📺';if(s.includes('ROBINHOOD'))return'🏹';if(s.includes('CIRCLE'))return'⭕';if(s.includes('UBER'))return'🚕';return'📈';}
 function cleanHeader(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9%]+/g,'');}
 
 function parseArkWorkbook(buf){
@@ -37,24 +37,22 @@ function parseArkWorkbook(buf){
     let hi=-1,headers=[];
     for(let i=0;i<Math.min(matrix.length,15);i++){
       const h=matrix[i].map(cleanHeader);
-      const score=['date','fund','direction','ticker','company','shares'].filter(k=>h.some(x=>x===k||x.includes(k))).length;
-      if(score>=4){hi=i;headers=h;break;}
+      const nonEmpty=h.filter(Boolean);
+      if(nonEmpty.length<5)continue;
+      const score=['fund','date','direction','ticker','name','shares'].filter(k=>h.includes(k)).length;
+      if(score>=5){hi=i;headers=h;break;}
     }
     if(hi<0)continue;
     const idx=re=>headers.findIndex(x=>re.test(x));
-    const dateI=idx(/^date$|tradedate/),fundI=idx(/fund/),dirI=idx(/direction|buysell|transactiontype|tradeaction/),tickerI=idx(/ticker/),companyI=idx(/company|securityname|name/),sharesI=idx(/shares/);
+    const dateI=idx(/^date$/),fundI=idx(/^fund$/),dirI=idx(/^direction$/),tickerI=idx(/^ticker$/),companyI=idx(/^name$|company|securityname/),sharesI=idx(/^shares$/);
     for(let i=hi+1;i<matrix.length;i++){
       const row=matrix[i];
       if(!row||!row.some(v=>String(v).trim()))continue;
-      let direction=dirI>=0?String(row[dirI]||'').trim():'';
-      if(!direction){const hit=row.find(v=>/^(buy|sell|purchase|sale)$/i.test(String(v).trim()));direction=hit?String(hit).trim():'';}
-      let ticker=tickerI>=0?String(row[tickerI]||'').trim():'';
-      if(!ticker){const hit=row.find(v=>/^[A-Z][A-Z.]{0,6}$/.test(String(v).trim())&&!/^(ARKK|ARKW|ARKG|ARKF|ARKQ|ARKX|ARKB|ARKD|ARKZ)$/.test(String(v).trim()));ticker=hit?String(hit).trim():'';}
       out.push({
         fund:fundI>=0?String(row[fundI]||'').trim():'',
         date:dateI>=0?excelDate(row[dateI]):'',
-        direction,
-        ticker,
+        direction:dirI>=0?String(row[dirI]||'').trim():'',
+        ticker:tickerI>=0?String(row[tickerI]||'').trim():'',
         company:companyI>=0?String(row[companyI]||'').trim():'',
         shares:sharesI>=0?Number(String(row[sharesI]||'').replace(/,/g,''))||0:0
       });
@@ -70,13 +68,10 @@ async function getArk(){
   });
   if(buf.length<500)throw new Error(`ARK file too small ${buf.length} ${contentType}`);
   const rows=parseArkWorkbook(buf);
-  const buys=rows.filter(x=>x.date&&x.ticker&&/buy|purchase/i.test(x.direction));
+  const buys=rows.filter(x=>x.date&&x.ticker&&/^buy$/i.test(x.direction));
   buys.sort((a,b)=>b.date.localeCompare(a.date));
   const latest=buys[0]?.date;
-  if(!latest){
-    const sample=rows.slice(0,3).map(x=>`${x.date}|${x.direction}|${x.ticker}`).join(';');
-    throw new Error(`ARK rows=${rows.length}, buys=0, sample=${sample}`);
-  }
+  if(!latest){const sample=rows.slice(0,4).map(x=>`${x.date}|${x.direction}|${x.ticker}`).join(';');throw new Error(`ARK rows=${rows.length}, buys=0, sample=${sample}`);}
   const grouped=new Map();
   for(const x of buys.filter(x=>x.date===latest)){
     const k=x.ticker;
@@ -106,24 +101,12 @@ function findPelosiFilings(txt,year){
   return found;
 }
 function parsePelosiTransactions(text){
-  const compact=text.replace(/\r/g,' ').replace(/\n+/g,' ').replace(/\s+/g,' ');
+  const compact=text.replace(/\u0000/g,'').replace(/\r/g,' ').replace(/\n+/g,' ').replace(/\s+/g,' ');
   const out=[];
-  const ranges=[...compact.matchAll(/\$([\d,]+)\s*-\s*\$([\d,]+)/g)];
-  for(const rg of ranges){
-    const at=rg.index||0;
-    const before=compact.slice(Math.max(0,at-420),at);
-    const dateMatches=[...before.matchAll(/(\d{2}\/\d{2}\/\d{4})/g)];
-    if(!dateMatches.length)continue;
-    const date=dateMatches[Math.max(0,dateMatches.length-2)]?.[1]||dateMatches[dateMatches.length-1][1];
-    const typeMatch=before.match(/(?:^|\s)(P|S \(partial\)|S)\s+\d{2}\/\d{2}\/\d{4}/);
-    if(!typeMatch)continue;
-    const type=typeMatch[1];
-    const ownerMatches=[...before.matchAll(/(?:^|\s)(SP|JT|DC|DEP)(?:\s|$)/g)];
-    const owner=ownerMatches.length?ownerMatches[ownerMatches.length-1][1]:'';
-    let asset=before.slice(Math.max(0,typeMatch.index-220),typeMatch.index).trim();
-    asset=asset.replace(/^.*?(?:Asset|Owner)\s+/i,'').replace(/\s+/g,' ').trim();
-    if(asset.length>240)asset=asset.slice(-240);
-    out.push({owner,asset,type,date,lo:Number(rg[1].replace(/,/g,'')),hi:Number(rg[2].replace(/,/g,''))});
+  const re=/(SP|JT|DC|DEP)\s*(.{3,240}?)\s*(P|S \(partial\)|S|E)(\d{2}\/\d{2}\/\d{4})(\d{2}\/\d{2}\/\d{4})\$([\d,]+(?:\.\d+)?)\s*-\s*\$([\d,]+(?:\.\d+)?)/g;
+  let m;
+  while((m=re.exec(compact))&&out.length<40){
+    out.push({owner:m[1],asset:m[2].trim(),type:m[3],date:m[4],notify:m[5],lo:Number(m[6].replace(/,/g,'')),hi:Number(m[7].replace(/,/g,''))});
   }
   return out;
 }
@@ -153,7 +136,7 @@ async function getPelosi(){
     const tick=(x.asset.match(/\(([A-Z.]{1,7})\)/)||[])[1]||'';
     if(!tick)continue;
     const option=/\[OP\]|option|call/i.test(x.asset);
-    const name=x.asset.replace(/^.*?(SP|JT|DC|DEP)\s+/,'').replace(/\s*\([^)]*\)[\s\S]*$/,'').replace(/\s*-\s*(Common|Class).*$/i,'').trim();
+    const name=x.asset.replace(/\s*\([^)]*\)[\s\S]*$/,'').replace(/\s*-\s*(Common|Class).*$/i,'').trim();
     items.push({emoji:emoji(name),name:name||tick,ticker:tick,badge:option?'🟢 콜옵션 매수':'🟢 매수·취득 신고',eventDate:isoFromUS(x.date),period:isoFromUS(x.date),scale:rangeKrw(x.lo,x.hi),rawScale:`미화 ${x.lo.toLocaleString('en-US')}~${x.hi.toLocaleString('en-US')}달러`,summary:`${x.owner==='SP'?'배우자 명의로 ':''}${tick} 관련 ${option?'콜옵션':'주식'} 거래가 미 하원에 신고됐어요.`,cta:option?'그날 주식을 샀다면? →':'그날 나도 샀다면? →',sourceLabel:'미 하원 거래 신고(PTR)',sourceUrl:chosen.url,market:'us',basis:option?'옵션 수익이 아니라 같은 날 기초 주식을 샀다고 가정':'신고된 거래일 기준'});
     if(items.length>=3)break;
   }
