@@ -1,0 +1,35 @@
+function MasterLegendChart({ticker,startYear,endYear,T,displayPrice,chartData,chartYears,buyPrice,entryLabel}){
+  const data=(chartData&&chartData.length)?chartData:getChartData(ticker);
+  if(!data||!data.length)return <div style={{padding:"34px 16px",textAlign:"center",color:T.textMuted,fontSize:"12px"}}>📊 주가 흐름을 불러오는 중...</div>;
+  const W=480,H=176,P=14;
+  const yt=getYahooTicker(ticker);
+  const ipoYr=getIpoYear(yt);
+  const years=(chartYears&&chartYears.length===data.length)?chartYears.map(Number):data.map((_,i)=>Math.round(ipoYr+(CURRENT_YEAR-ipoYr)*(i/Math.max(data.length-1,1))));
+  const mn=Math.min(...data),mx=Math.max(...data),yr=mx-mn||1;
+  const xs=(W-P*2)/Math.max(data.length-1,1);
+  const tx=i=>P+i*xs,ty=v=>H-P-((v-mn)/yr)*(H-P*2-24);
+  const nearest=year=>{let best=0,d=Infinity;years.forEach((y,i)=>{const nd=Math.abs(y-year);if(nd<d){d=nd;best=i;}});return best;};
+  const si=nearest(startYear),ei=nearest(endYear||startYear);
+  const sx=tx(si),ex=tx(ei),sy=ty(data[si]);
+  const lp=data.map((v,i)=>`${i===0?"M":"L"}${tx(i).toFixed(1)},${ty(v).toFixed(1)}`).join(" ");
+  const fp=`${lp} L${tx(data.length-1).toFixed(1)},${H-P} L${tx(0).toFixed(1)},${H-P} Z`;
+  const up=data[data.length-1]>=data[0],lc=up?"#4ade80":"#f87171";
+  const gid=`mlg-${String(ticker).replace(/[^a-zA-Z0-9]/g,"")}`;
+  const markerX=Math.min(Math.max(sx,62),W-62);
+  return <div style={{padding:"6px 0 0"}}>
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible"}}>
+      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={lc} stopOpacity="0.18"/><stop offset="100%" stopColor={lc} stopOpacity="0"/></linearGradient></defs>
+      {endYear>startYear&&<rect x={Math.min(sx,ex)} y="8" width={Math.max(8,Math.abs(ex-sx))} height={H-24} rx="5" fill={T.accent} opacity="0.08"/>}
+      <path d={fp} fill={`url(#${gid})`}/>
+      <path d={lp} fill="none" stroke={lc} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+      <line x1={sx} x2={sx} y1="12" y2={H-12} stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.9"/>
+      <circle cx={sx} cy={sy} r="5.5" fill="#60a5fa" stroke={T.bgCard} strokeWidth="2.5"/>
+      <rect x={markerX-58} y="4" width="116" height="28" rx="8" fill={T.bgDeep} stroke={T.border}/>
+      <text x={markerX} y="15" textAnchor="middle" fill="#60a5fa" fontSize="9.5" fontWeight="700">{startYear}{endYear>startYear?`~${endYear}`:""}</text>
+      <text x={markerX} y="25" textAnchor="middle" fill={T.textSub} fontSize="8.5">{entryLabel||"대표 투자 시점"}</text>
+      <text x={P} y={H-2} textAnchor="start" fill={T.textMuted} fontSize="9">{years[0]}</text>
+      <text x={W-P} y={H-2} textAnchor="end" fill={T.textMuted} fontSize="9">오늘</text>
+    </svg>
+    {buyPrice&&<div style={{fontSize:"10px",color:T.textMuted,textAlign:"center",marginTop:"2px"}}>파란 표시가 이 사례의 공개 거래일·기준 시점이에요 · 당시 {displayPrice(buyPrice)}</div>}
+  </div>;
+}
