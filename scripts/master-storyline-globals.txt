@@ -1,0 +1,58 @@
+const MASTER_ACTIVITY_HISTORY = {
+  buffett:[
+    {emoji:"📰",name:"뉴욕타임스",ticker:"NYT",badge:"새로 담았어요",eventDate:"2025-12-31",period:"2025년 4분기 보유 공개",scale:"5,070,000주 · 약 3억 5,170만달러",summary:"버크셔의 2025년 말 보유내역에 뉴욕타임스가 새로 등장했어요.",sourceLabel:"공개 보유자료",sourceUrl:"https://www.reuters.com/business/berkshire-hathaway-discloses-investment-new-york-times-2026-02-17/",market:"us",basis:"분기말 공개 기준"},
+    {emoji:"🍎",name:"애플",ticker:"AAPL",badge:"일부 줄였어요",eventDate:"2025-12-31",period:"2025년 4분기 보유 공개",scale:"기존 보유량의 약 4% 축소",summary:"버크셔는 애플을 여전히 가장 큰 상장주식 보유종목으로 두면서 일부 지분을 줄였어요.",sourceLabel:"공개 보유자료",sourceUrl:"https://www.reuters.com/business/berkshire-hathaway-discloses-investment-new-york-times-2026-02-17/",market:"us",basis:"분기말 공개 기준"},
+    {emoji:"🔎",name:"알파벳",ticker:"GOOGL",badge:"새로 담았어요",eventDate:"2025-09-30",period:"2025년 3분기 보유 공개",scale:"약 43억달러 규모",summary:"버크셔의 분기 보유내역에 알파벳이 새 포지션으로 공개됐어요.",sourceLabel:"공개 보유자료",sourceUrl:"https://www.reuters.com/business/finance/us-hedge-funds-trim-stakes-magnificent-seven-stocks-third-quarter-2025-11-15/",market:"us",basis:"분기말 공개 기준"},
+    {emoji:"🍺",name:"Constellation Brands",ticker:"STZ",badge:"새로 담았어요",eventDate:"2024-12-31",period:"2024년 4분기 보유 공개",scale:"5,620,000주 · 약 12억 4,000만달러",summary:"맥주·주류 회사 Constellation Brands가 버크셔의 새 보유종목으로 공개됐어요.",sourceLabel:"공개 보유자료",sourceUrl:"https://www.reuters.com/business/finance/berkshire-buys-constellation-brands-cuts-big-bank-holdings-2025-02-14/",market:"us",basis:"분기말 공개 기준"}
+  ],
+  ark:[
+    {emoji:"🪙",name:"코인베이스",ticker:"COIN",badge:"더 담았어요",eventDate:"2026-08-03",period:"2026-08-03",scale:"여러 ARK ETF에서 추가 매수 공개",summary:"ARK가 코인베이스 비중을 추가로 늘린 거래가 공개됐어요.",sourceLabel:"ARK 거래 알림",sourceUrl:"https://www.ark-funds.com/ark-trade-notifications",market:"us",basis:"ARK가 공개한 거래일 기준"},
+    {emoji:"⭕",name:"서클",ticker:"CRCL",badge:"더 담았어요",eventDate:"2026-08-03",period:"2026-08-03",scale:"추가 매수 공개",summary:"스테이블코인 인프라 회사 서클을 추가 매수한 내역이 공개됐어요.",sourceLabel:"ARK 거래 알림",sourceUrl:"https://www.ark-funds.com/ark-trade-notifications",market:"us",basis:"ARK가 공개한 거래일 기준"}
+  ],
+  pelosi:[
+    {emoji:"🏦",name:"AllianceBernstein",ticker:"AB",badge:"주식을 샀어요",eventDate:"2026-01-16",period:"2026-01-16",scale:"25,000주 · 약 13억 8,000만원~69억원",summary:"배우자 명의로 자산운용사 AllianceBernstein 주식 25,000주 매수가 신고됐어요.",sourceLabel:"미 하원 거래 신고",sourceUrl:"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20033725.pdf",market:"us",basis:"신고된 거래일 기준"},
+    {emoji:"🔎",name:"알파벳",ticker:"GOOGL",badge:"미리 사둔 권리로 주식을 받았어요",term:"옵션 행사",eventDate:"2026-01-16",period:"2026-01-16",scale:"50개 권리 행사 → 5,000주 취득",summary:"예전에 사둔 권리를 사용해 알파벳 주식 5,000주를 취득한 거래가 신고됐어요.",sourceLabel:"미 하원 거래 신고",sourceUrl:"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20033725.pdf",market:"us",basis:"옵션 자체 수익이 아니라 같은 날 알파벳 주가 기준"},
+    {emoji:"📦",name:"아마존",ticker:"AMZN",badge:"주식을 살 수 있는 권리를 샀어요",term:"콜옵션",eventDate:"2025-12-30",period:"2025-12-30",scale:"20개 권리 · 약 1억 3,800만원~3억 4,500만원",summary:"배우자 명의로 아마존 주식을 나중에 정해진 가격에 살 수 있는 권리를 산 거래가 공개됐어요.",sourceLabel:"미 하원 거래 신고",sourceUrl:"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20033725.pdf",market:"us",basis:"옵션 자체 수익이 아니라 같은 날 아마존 주가 기준"},
+    {emoji:"💾",name:"브로드컴",ticker:"AVGO",badge:"미리 사둔 권리로 주식을 받았어요",term:"옵션 행사",eventDate:"2025-06-20",period:"2025-06-20",scale:"200개 권리 행사 → 20,000주 취득",summary:"2024년에 사둔 권리를 사용해 브로드컴 주식 20,000주를 취득한 거래가 신고됐어요.",sourceLabel:"미 하원 거래 신고",sourceUrl:"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20030630.pdf",market:"us",basis:"옵션 자체 수익이 아니라 같은 날 브로드컴 주가 기준"}
+  ],
+  parkYoungOk:[],
+  kangBangCheon:[],
+  leeChaeWon:[]
+};
+
+function easyMasterAction(item){
+  const raw=((item&&item.badge)||"")+" "+((item&&item.summary)||"");
+  if(/콜옵션 매수|call option|주식을 살 수 있는 권리/.test(raw))return{label:"주식을 살 수 있는 권리를 샀어요",term:"콜옵션"};
+  if(/옵션 행사|행사해|권리로 주식을 받/.test(raw))return{label:"미리 사둔 권리로 주식을 받았어요",term:"옵션 행사"};
+  if(/일부 줄|축소|매도|팔았/.test(raw))return{label:"일부 줄였어요",term:""};
+  if(/새로 담|신규|새 포지션/.test(raw))return{label:"새로 담았어요",term:""};
+  if(/더 담|늘림|추가 매수|매수 공개/.test(raw))return{label:"더 담았어요",term:""};
+  if(/주식 매수|주식을 샀/.test(raw))return{label:"주식을 샀어요",term:""};
+  return{label:(item&&item.badge)||"거래가 공개됐어요",term:(item&&item.term)||""};
+}
+
+function masterUsdUnit(n,u){const m={K:1e3,M:1e6,B:1e9};return Number(String(n).replace(/,/g,""))*(m[String(u||"").toUpperCase()]||1);}
+function formatEasyKrwFromUsd(usd,rate=1380){
+  const w=Math.round((Number(usd)||0)*(Number(rate)||1380));
+  if(w>=1e12){const jo=Math.floor(w/1e12),eok=Math.round((w%1e12)/1e8);return eok?`약 ${jo}조 ${eok.toLocaleString("ko-KR")}억원`:`약 ${jo}조원`;}
+  if(w>=1e8){const eok=Math.floor(w/1e8),man=Math.round(((w%1e8)/1e4)/100)*100;return man?`약 ${eok}억 ${man.toLocaleString("ko-KR")}만원`:`약 ${eok}억원`;}
+  if(w>=1e4)return`약 ${Math.round(w/1e4).toLocaleString("ko-KR")}만원`;
+  return`약 ${w.toLocaleString("ko-KR")}원`;
+}
+function humanizeMasterMoneyText(text,rate=1380){
+  let s=String(text||"");
+  s=s.replace(/\$\s*([\d,.]+)\s*([KMB])?\s*[~–-]\s*\$?\s*([\d,.]+)\s*([KMB])?/gi,(m,a,au,b,bu)=>`${formatEasyKrwFromUsd(masterUsdUnit(a,au),rate)}~${formatEasyKrwFromUsd(masterUsdUnit(b,bu),rate).replace(/^약 /,"")}`);
+  s=s.replace(/\$\s*([\d,.]+)\s*([KMB])?/gi,(m,a,u)=>formatEasyKrwFromUsd(masterUsdUnit(a,u),rate));
+  return s.replace(/약\s+약/g,"약");
+}
+function masterActivityHelp(item){
+  const raw=((item&&item.badge)||"")+" "+((item&&item.summary)||"")+" "+((item&&item.sourceLabel)||"");
+  if(/콜옵션|옵션 행사|권리/.test(raw))return"쉽게 말하면, 나중에 정해진 가격으로 주식을 살 수 있는 ‘티켓’ 같은 권리예요. 아래 주가 변화는 옵션 수익이 아니라 그날 해당 주식 가격이 이후 어떻게 변했는지 보여줘요.";
+  if(/13F|보유자료|보유 공개/.test(raw))return"정확한 매수일을 공개한 자료가 아니라 분기말 보유현황이에요. 그래서 공개 기준일의 주가와 지금 주가를 비교해요.";
+  return"공개자료에 적힌 거래일 또는 기준일의 주가와 지금 주가를 비교해요.";
+}
+function masterEvidenceRange(evidence,fallbackYear){
+  const text=String((evidence&&evidence.eventDate)||"");
+  const years=(text.match(/(?:19|20)\d{2}/g)||[]).map(Number);
+  return{start:years[0]||Number(fallbackYear),end:years[1]||years[0]||Number(fallbackYear)};
+}
